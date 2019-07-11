@@ -7,6 +7,8 @@ Innovatrics::Innovatrics()
 
 Innovatrics::~Innovatrics()
 {
+	IFACE_Terminate();
+
 }
 
 void Innovatrics::ObserverError() {

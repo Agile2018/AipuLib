@@ -13,6 +13,10 @@ public:
 	~Identify();
 	void LoadConnection();	
 	void EnrollUser(Molded* modelImage);
+	void SetIsRegister(bool option) {
+		isRegister = option;
+	}
+
 	Rx::subject<Either*> errorSubject;
 	Rx::observable<Either*> observableError = errorSubject.get_observable();
 	Rx::subject<User*> userSubject;
@@ -22,7 +26,7 @@ private:
 	ErrorIdKitLib* error = new ErrorIdKitLib();
 	Rx::subscriber<Either*> shootError = errorSubject.get_subscriber();
 	Rx::subscriber<User*> shootUser = userSubject.get_subscriber();	
-	
+	bool isRegister = true;
 	void ObserverError();
 };
 

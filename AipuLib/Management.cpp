@@ -30,8 +30,8 @@ void Management::ObserverIdentifyFace() {
 		
 		if (user->GetIsNew())
 		{			
-			user->SetNameUser("David");
-			user->SetAddressUser("Puerto Rico Guilarte");
+			user->SetNameUser("empty");
+			user->SetAddressUser("empty");
 			database->InsertNewUser(user);
 		}
 		else {
@@ -48,6 +48,7 @@ void Management::ObserverDatabase() {
 	});
 
 	auto subscriptionDatabase = databaseObservable.subscribe([this](string jsonUser) {
+		
 		shootUserJSON.on_next(jsonUser);
 	});
 
@@ -177,12 +178,11 @@ int Management::SetStateFlow(int minute) {
 
 }
 
-void Management::GetModelOneToOne(Mat image) {
-	video->WriteImageOnDisk(image);
-
+void Management::GetModelOneToOne(Mat image) {	
+	vector<uchar> buffer = video->WriteImageOnBuffer(image);
 	chrono::steady_clock sc;
 	auto start = sc.now();
-	int count = faceModel->ModelOneToOne();
+	int count = faceModel->ModelOneToOne(buffer);
 	if (count != 0)
 	{
 		auto end = sc.now();
@@ -190,14 +190,19 @@ void Management::GetModelOneToOne(Mat image) {
 		timeDurationSingleDetection = time_span.count();
 
 	}
+	buffer.clear();
 	countImagesDetected += count;
 
 }
 
+
 void Management::GetModelsByBatch(Mat image) {
-	video->WriteBatchOfImagesOnDisk(image);
-	if (video->GetProcessedImages() % MULTIPLE_OF_TEN == 0) {
-		countImagesDetected += faceModel->ModelByBatch();
+	
+	video->WriteBatchOfImagesOnBuffer(image);
+	if (video->GetProcessedImages() == SIZE_BUFFER) { 
+		std::vector<std::vector<uchar>> bufferImages = video->GetBufferOfImages();
+		countImagesDetected += faceModel->ModelByBatch(bufferImages);
+		video->ClearBufferImagesBatch();
 	}
 
 }
@@ -248,11 +253,17 @@ void Management::ObserverVideo() {
 			squ.detach();
 
 		}		
-		frameOut.on_next(image);
+		
 	});
 }
 
 void Management::RunVideo() {	
 	flowTrend->Init();
+	std::thread squ(&Management::RunVideoTemp, this);
+	squ.detach();
+	
+}
+
+void Management::RunVideoTemp() {		
 	video->RunVideo();
 }

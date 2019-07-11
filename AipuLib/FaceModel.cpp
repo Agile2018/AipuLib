@@ -37,7 +37,8 @@ void FaceModel::Terminate() {
 
 }
 
-int FaceModel::DetectByBatch(void* facesDetected[BATCH_SIZE]) {
+int FaceModel::DetectByBatch(void* facesDetected[BATCH_SIZE],
+	std::vector<std::vector<unsigned char>> bufferOfImagesBatch) {
 	int errorCode, countFacesDetected = 0;
 	void* faceHandler;
 
@@ -55,52 +56,58 @@ int FaceModel::DetectByBatch(void* facesDetected[BATCH_SIZE]) {
 	{
 		int lenght, widthFace, heightFace;
 
-		processedImages++;
-		string fileImage = nameDirectory + "/" + to_string(processedImages) + nameFileImage;
+		vector<unsigned char> buffer = bufferOfImagesBatch[i];
+		const char* imgData = reinterpret_cast<const char*> (&buffer[0]);
 
-		errorCode = IFACE_LoadImage(fileImage.c_str(), &widthFace, &heightFace, &lenght, NULL);
-		if (errorCode == IFACE_OK) {
-			unsigned char* rawImage = new unsigned char[lenght];
-			errorCode = IFACE_LoadImage(fileImage.c_str(), &widthFace,
-				&heightFace, &lenght, rawImage);
-			error->CheckError(errorCode, error->medium);
-			void* faceTemp;
-			errorCode = IFACE_CreateFace(&(faceTemp));
-			error->CheckError(errorCode, error->medium);
-			int detectedFaces = configuration->GetMaxDetect();
-			errorCode = IFACE_DetectFaces(rawImage, widthFace, heightFace,
-				configuration->GetMinEyeDistance(), configuration->GetMaxEyeDistance(),
-				faceHandler, &detectedFaces, &faceTemp);
-			delete rawImage;
-			error->CheckError(errorCode, error->medium);
-
-			if (detectedFaces != EMPTY_FACE)
+		if (imgData != NULL) {
+			errorCode = IFACE_LoadImageFromMemory(imgData, (unsigned int)buffer.size(), &widthFace,
+				&heightFace, &lenght, NULL);
+			if (errorCode == IFACE_OK)
 			{
-				float rightEyeX, rightEyeY, leftEyeX, leftEyeY;
-				float faceConfidence;
-				errorCode = IFACE_GetFaceBasicInfo(faceTemp, faceHandler,
-					&rightEyeX, &rightEyeY, &leftEyeX, &leftEyeY, &faceConfidence);
+
+				unsigned char* rawImage = new unsigned char[lenght];
+				errorCode = IFACE_LoadImageFromMemory(imgData, (unsigned int)buffer.size(), &widthFace,
+					&heightFace, &lenght, rawImage);
+
 				error->CheckError(errorCode, error->medium);
-				
-				if (faceConfidence > configuration->GetPrecision())
+				void* faceTemp;
+				errorCode = IFACE_CreateFace(&(faceTemp));
+				error->CheckError(errorCode, error->medium);
+				int detectedFaces = configuration->GetMaxDetect();
+				errorCode = IFACE_DetectFaces(rawImage, widthFace, heightFace,
+					configuration->GetMinEyeDistance(), configuration->GetMaxEyeDistance(),
+					faceHandler, &detectedFaces, &faceTemp);
+				delete rawImage;
+				error->CheckError(errorCode, error->medium);
+
+				if (detectedFaces != EMPTY_FACE)
 				{
-					errorCode = IFACE_CloneEntity(faceTemp, facesDetected[countFacesDetected]);
+					float rightEyeX, rightEyeY, leftEyeX, leftEyeY;
+					float faceConfidence;
+					errorCode = IFACE_GetFaceBasicInfo(faceTemp, faceHandler,
+						&rightEyeX, &rightEyeY, &leftEyeX, &leftEyeY, &faceConfidence);
 					error->CheckError(errorCode, error->medium);
-					string pathImage = nameDirectory + "/" + to_string(countFacesDetected) + nameFileCropImage;
-					std::thread(&FaceModel::FaceCropImage, this, 
-						facesDetected[countFacesDetected], pathImage).detach();
-					countFacesDetected++;
+
+					if (faceConfidence > configuration->GetPrecision())
+					{
+						errorCode = IFACE_CloneEntity(faceTemp, facesDetected[countFacesDetected]);
+						error->CheckError(errorCode, error->medium);
+						string pathImage = nameDirectory + "/" + to_string(countFacesDetected) + nameFileCropImage;
+						std::thread(&FaceModel::FaceCropImage, this,
+							facesDetected[countFacesDetected], pathImage).detach();
+						countFacesDetected++;
+					}
+
 				}
-				
+				errorCode = IFACE_ReleaseEntity(faceTemp);
+				error->CheckError(errorCode, error->medium);
 			}
-			errorCode = IFACE_ReleaseEntity(faceTemp);
-			error->CheckError(errorCode, error->medium);
+			else {
+				error->CheckError(errorCode, error->medium);
+			}
 
 		}
-		else {
-			error->CheckError(errorCode, error->medium);
-		}
-		
+
 
 	}
 	errorCode = IFACE_ReleaseEntity(faceHandler);
@@ -135,19 +142,14 @@ void FaceModel::FaceCropImage(void* face, string pathImage) {
 	delete[] cropImageData;
 }
 
-int FaceModel::ModelByBatch() {
+int FaceModel::ModelByBatch(std::vector<std::vector<unsigned char>> bufferOfImagesBatch) {
 	int errorCode;
 	void* facesDetected[BATCH_SIZE];
-	int countFacesDetected = DetectByBatch(facesDetected);
+	int countFacesDetected = DetectByBatch(facesDetected, bufferOfImagesBatch);
 	if (countFacesDetected != 0)
 	{
 		GetBatchModels(countFacesDetected, facesDetected);
 	}	
-
-	if (processedImages == batchTotalSize)
-	{
-		processedImages = 0;
-	}
 
 	for (int i = 0; i < BATCH_SIZE; i++)
 	{
@@ -219,30 +221,37 @@ void FaceModel::GetBatchModels(int countFacesDetected, void* facesDetected[BATCH
 	error->CheckError(errorCode, error->medium);
 }
 
-int FaceModel::ModelOneToOne() {
+int FaceModel::ModelOneToOne(vector<unsigned char> buffer) {
 	int lenght, width, height, errorCode, templates;
-	string fileImage = nameDirectory + "/" + nameFileImage;
-	errorCode = IFACE_LoadImage(fileImage.c_str(), &width, &height, &lenght, NULL);
-	if (errorCode == IFACE_OK)
-	{
-		unsigned char* rawImage = new unsigned char[lenght];
-		errorCode = IFACE_LoadImage(fileImage.c_str(), &width,
-			&height, &lenght, rawImage);
-		if (errorCode != IFACE_OK)
+	const char* imgData = reinterpret_cast<const char*> (&buffer[0]);
+
+	if (imgData != NULL) {
+		errorCode = IFACE_LoadImageFromMemory(imgData, (unsigned int)buffer.size(), &width,
+			&height, &lenght, NULL);
+		if (errorCode == IFACE_OK)
 		{
+			
+			unsigned char* rawImage = new unsigned char[lenght];
+			errorCode = IFACE_LoadImageFromMemory(imgData, (unsigned int)buffer.size(), &width,
+				&height, &lenght, rawImage);
+			if (errorCode != IFACE_OK)
+			{
+				error->CheckError(errorCode, error->medium);
+			}
+			else
+			{
+				templates = GetOneModel(rawImage, width, height);
+			}
+			delete rawImage;
+		}
+		else {
 			error->CheckError(errorCode, error->medium);
 		}
-		else
-		{
-			templates = GetOneModel(rawImage, width, height);
-		}
-		delete rawImage;
 	}
-	else {
-		error->CheckError(errorCode, error->medium);
-	}
+
 	return templates;
 }
+
 
 void FaceModel::CreateTemplate(void* face) {
 	int errorCode;

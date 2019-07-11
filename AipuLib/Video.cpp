@@ -43,39 +43,77 @@ void Video::CheckFramesBySecond(VideoCapture videoCapture) {
 }
 
 void Video::RunVideo() {
-	if (configuration->BuildPathVideo()) {
-		VideoCapture capture;
-		Mat frame;
-		bool flagCapture = true;
-		if (configuration->GetDeviceId() != NOT_DEVICE) {
-			capture.open(configuration->GetDeviceId());
-		}
-		else {
-			capture.open(configuration->GetURLVideo());
-		}
+	Mat frame;	
+	string pathImageTemp = nameDirectory + "/"; 
+	int indexImage = 0;
+	int indexBefore = 0;
+	flagCapture = 1;
 
-		if (!capture.isOpened()) {
-			error->CheckError(ERROR_FILE_NOT_EXIST,
-				error->medium, LABEL_ERROR_FILE_NOT_FOUND);			
-			return;
-		}
-		CheckFramesBySecond(capture);
-		int frameBySecond = configuration->GetFPSStringToInt();
-		while (flagCapture) {
-			if (!capture.read(frame)) {
-				error->CheckError(ERROR_UNABLE_READ_NEXT, 
-					error->medium, LABEL_ERROR_UNABLE_READ_NEXT);
-				return;
+	while (flagCapture == 1) {
+		
+		if (indexBefore != indexExternImage)
+		{
+			int indexTemp = indexExternImage;
+			indexBefore = indexExternImage;
+			indexTemp += 1;
+			if (indexTemp == 5)
+			{
+				indexTemp = 0;
 			}
-			else {
-				frameout.on_next(frame);				
-				if (waitKey(MILI_SECONDS / frameBySecond) >= 0) {
-					flagCapture = false;
-				}
+			if (indexTemp == indexImage)
+			{
+				indexImage = ChangeIndexImage(indexImage);
 			}
+
+			string name = "temp" + to_string(indexImage) + ".png";
+			string fullName = pathImageTemp + name;	
+
+
+			frame = imread(fullName, IMREAD_COLOR);
+			cout << "INDEX VIDEO: " << indexImage << endl;
+
+			if (frame.data != NULL)
+			{				
+				frameout.on_next(frame);
+			}
+				
+			indexImage += 1;
+			if (indexImage == quatityImagesSaved) {
+				indexImage = 0;
+			}
+			frame.release();
 		}
-		capture.release();
+		std::this_thread::sleep_for(std::chrono::milliseconds(lapseFrameToFrame));
+												
 	}
+}
+
+int Video::ChangeIndexImage(int index) {
+	int indexTemp = index;
+	indexTemp += 2;
+	switch (indexTemp)
+	{
+	case 5:
+		indexTemp = 0;
+		break;
+	case 6:
+		indexTemp = 1;
+		break;
+	default:
+		break;
+	}
+	return indexTemp;
+}
+
+
+vector<uchar> Video::WriteImageOnBuffer(Mat frame) {
+	vector<uchar> bufferImage;
+	int params[3] = { 0 };
+	params[0] = IMWRITE_JPEG_QUALITY;
+	params[1] = 100;
+	bool code = cv::imencode(".jpg", frame,
+		bufferImage, std::vector<int>(params, params + 2));
+	return bufferImage;
 
 }
 
@@ -87,13 +125,25 @@ void Video::WriteImageOnDisk(Mat frame) {
 }
 void Video::WriteBatchOfImagesOnDisk(Mat frame) {
 	processedImages++;
+	
 	string fileTemp = nameDirectory + "/" +
 		to_string(processedImages) + configuration->GetImageTemp();
 	imwrite(fileTemp, frame);
+
 	if (processedImages == batchTotalSize)
 	{
 		processedImages = 0;
 	}
+
+}
+
+void Video::WriteBatchOfImagesOnBuffer(Mat frame) {
+	
+
+	vector<uchar> bufferImage = WriteImageOnBuffer(frame);
+
+	bufferOfImagesBatch.push_back(bufferImage);
+
 
 }
 

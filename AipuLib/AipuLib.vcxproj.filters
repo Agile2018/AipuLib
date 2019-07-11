@@ -105,6 +105,12 @@
     <ClInclude Include="AipuLib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FrameBMP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Facemat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -183,6 +189,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Management.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBMP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Facemat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

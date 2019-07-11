@@ -24,8 +24,8 @@ void Identify::LoadConnection() {
 	error->CheckError(errorCode, error->medium);
 	errorCode = IEngine_Connect(cstr);
 	error->CheckError(errorCode, error->medium);
-	errorCode = IEngine_ClearDatabase();
-	error->CheckError(errorCode, error->medium);
+	/*errorCode = IEngine_ClearDatabase();
+	error->CheckError(errorCode, error->medium);*/
 
 }
 
@@ -42,7 +42,7 @@ void Identify::EnrollUser(Molded* modelImage) {
 		error->CheckError(errorCode, error->medium);		
 
 		errorCode = IEngine_FindUser(user, &userID, &score);		
-		if (userID == 0)
+		if (userID == 0 && isRegister)
 		{
 
 			errorCode = IEngine_RegisterUser(user, &userID);			
@@ -51,7 +51,7 @@ void Identify::EnrollUser(Molded* modelImage) {
 				userForDatabase->SetIsNew(true);
 			}
 		}
-		if (errorCode == IENGINE_E_NOERROR) {
+		if (errorCode == IENGINE_E_NOERROR && userID != 0) {
 			userForDatabase->SetUserIdIFace(userID);
 			userForDatabase->SetPathImageTemp(modelImage->GetPathImage());
 			shootUser.on_next(userForDatabase);

@@ -10,6 +10,7 @@
 #include "Identify.h"
 #include <ctime>
 #include "Database.h"
+//#include "FrameBMP.h"
 
 #define SINGLE			1
 #define OPTION_BATCH	2
@@ -17,7 +18,7 @@
 #define ONE_MINUTE		1
 #define SIXTY_SECONDS	60
 #define SIXTY_MINUTES	60
-#define MULTIPLE_OF_TEN 10
+#define SIZE_BUFFER		5
 
 const string DIRECTORY_CONFIGURATION = "configuration";
 
@@ -127,12 +128,27 @@ public:
 	}
 
 	void RunVideo();
+	void SetIsRegister(bool option) {
+		identify->SetIsRegister(option);
+	}
+
+	void StopCapture() {
+		video->StopCapture();
+	}
+
+	void SetLapseFrame(int lapse) {
+		video->SetLapseFrame(lapse);
+	}
+
+	void SetIndexImage(int index) {
+		video->SetIndexImage(index);
+	}
 
 	Rx::subject<Either*> errorSubject;
 	Rx::observable<Either*> observableError = errorSubject.get_observable();
 
-	Rx::subject<Mat> frame;
-	Rx::observable<Mat> observableFrame = frame.get_observable();
+	/*Rx::subject<Mat> frame;
+	Rx::observable<Mat> observableFrame = frame.get_observable();*/
 
 	Rx::subject<string> userDetected;
 	Rx::observable<string> observableUserJSON = userDetected.get_observable();
@@ -140,7 +156,7 @@ public:
 
 private:	
 	Rx::subscriber<Either*> shootError = errorSubject.get_subscriber();
-	Rx::subscriber<Mat> frameOut = frame.get_subscriber();
+	//Rx::subscriber<Mat> frameOut = frame.get_subscriber();
 	Rx::subscriber<string> shootUserJSON = userDetected.get_subscriber();
 	ConfigurationFile* configurationFile = new ConfigurationFile();
 	FaceModel* faceModel = new FaceModel();
@@ -185,6 +201,7 @@ private:
 		database->configuration->ParseJSONToObject();
 	}
 
+	void RunVideoTemp();
 };
 
 #endif // !Management_h

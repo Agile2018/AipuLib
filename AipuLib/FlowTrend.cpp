@@ -43,7 +43,7 @@ void FlowTrend::LoadMatrix() {
 			VectorXf w(quantityDetected.size());
 			X = z;
 			y = w;
-			for (int i = 0; i < quantityDetected.size(); i++) {
+			for (unsigned int i = 0; i < quantityDetected.size(); i++) {
 				X(i, 0) = 1;
 				//X(i, 1) = static_cast<float>(dayOfDetected[i]);
 				X(i, 1) = static_cast<float>(minuteOfDetected[i]);

@@ -1,7 +1,7 @@
 #ifndef FaceModel_h
 #define FaceModel_h
 
-#define BATCH_SIZE	10
+#define BATCH_SIZE	5
 #define BATCH_TOTAL_SIZE 30
 #define EMPTY_FACE	0
 
@@ -9,6 +9,7 @@
 #include "ConfigurationIFace.h"
 #include "ErrorFaceLib.h"
 #include "Molded.h"
+
 
 class FaceModel
 {
@@ -28,8 +29,8 @@ public:
 	}
 
 	void Terminate();
-	int ModelByBatch();
-	int ModelOneToOne();
+	int ModelByBatch(std::vector<std::vector<unsigned char>> bufferOfImagesBatch);
+	int ModelOneToOne(vector<unsigned char> buffer);
 	
 	ConfigurationIFace* configuration = new ConfigurationIFace();
 	Rx::subject<Molded*> templateImage;
@@ -41,13 +42,14 @@ private:
 	const string nameFileCropImage = "imgCrop.png";
 	ErrorFaceLib* error = new ErrorFaceLib();
 	Rx::subscriber<Either*> shootError = errorSubject.get_subscriber();
-	int batchTotalSize = BATCH_TOTAL_SIZE;
+	//int batchTotalSize = BATCH_TOTAL_SIZE;
 	int processedImages = 0;
 	string nameFileImage;
 	string nameDirectory;
 	Rx::subscriber<Molded*> templateOut = templateImage.get_subscriber();
 	void FaceCropImage(void* face, string pathImage);	
-	int DetectByBatch(void* facesDetected[BATCH_SIZE]);
+	int DetectByBatch(void* facesDetected[BATCH_SIZE], 
+		std::vector<std::vector<unsigned char>> bufferOfImagesBatch);
 	void GetBatchModels(int countFacesDetected, void* facesDetected[BATCH_SIZE]);
 	void CreateTemplate(void* face);
 	int GetOneModel(unsigned char* rawImage, int width, int height);

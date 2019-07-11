@@ -48,6 +48,7 @@ private:
 	const string FIELD_USER_ID = "_id";
 	const string FIELD_USER_NAME = "name";
 	const string FIELD_USER_ADDRESS = "address";
+	const string FIELD_USER_REGISTER = "register";
 	const string FORMAT_IMAGE_64 = "data:image/jpeg;base64,";
 	const string PARAMS = "params";
 	const string DATASOURCE = "MongoDB";

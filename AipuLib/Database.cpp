@@ -7,7 +7,7 @@ Database::Database()
 }
 
 Database::~Database()
-{
+{	
 }
 
 void Database::Configure() {
@@ -99,7 +99,7 @@ void Database::BuildNewUser(User* user) {
 	values.push_back(to_string(idFace));
 	values.push_back(user->GetNameUser());
 	values.push_back(user->GetAddressUser());
-	values.push_back(QueryImageOfUser(idFace));
+	values.push_back("1");
 
 	BuildJSONUser(values);
 }
@@ -108,12 +108,17 @@ string Database::FileImageToStringBase64(string path) {
 	string encodedPng;
 	vector<uchar> bufferImage;
 	Mat img = imread(path, IMREAD_COLOR);
+	int params[3] = { 0 };
+	params[0] = IMWRITE_JPEG_QUALITY;
+	params[1] = 100;
+
 	if (!img.empty())
 	{
-		imencode(".png", img, bufferImage);
-		auto base64Png = reinterpret_cast<const unsigned char*>(bufferImage.data());
-		encodedPng = FORMAT_IMAGE_64 + base64->base64_encode(base64Png, (unsigned int)bufferImage.size());
+		bool code = cv::imencode(".jpg", img, 
+			bufferImage, std::vector<int>(params, params + 2));
+		uchar* buffToBase64 = reinterpret_cast<uchar*> (&bufferImage[0]);
 
+		encodedPng = base64->base64_encode(buffToBase64, (unsigned int)bufferImage.size());
 	}
 	return encodedPng;
 }
@@ -166,7 +171,7 @@ void Database::QueryUserByFace(int idFaceUser) {
 		values.push_back(to_string(idFace));
 		values.push_back(view["name"].get_utf8().value.to_string());
 		values.push_back(view["address"].get_utf8().value.to_string());
-		values.push_back(QueryImageOfUser(idFaceUser));
+		values.push_back("0");
 
 		BuildJSONUser(values);
 
@@ -183,7 +188,7 @@ void Database::BuildJSONUser(vector<std::string> values) {
 	params.insert(std::pair<std::string, std::string>(FIELD_USER_ID_FACE, values[0]));
 	params.insert(std::pair<std::string, std::string>(FIELD_USER_NAME, values[1]));
 	params.insert(std::pair<std::string, std::string>(FIELD_USER_ADDRESS, values[2]));
-	params.insert(std::pair<std::string, std::string>(FIELD_IMAGE_DATA, values[3]));
+	params.insert(std::pair<std::string, std::string>(FIELD_USER_REGISTER, values[3]));
 	std::map<std::string, std::string>::const_iterator it = params.begin(),
 		end = params.end();
 	for (; it != end; ++it) {
@@ -194,8 +199,9 @@ void Database::BuildJSONUser(vector<std::string> values) {
 	jsonBody[COLLECTION_USER] = DATASOURCE;
 	jsonBody[PARAMS] = jsonParams;
 
-	Json::StyledWriter writer;
-	stringJSON = writer.write(jsonBody);
+	Json::StreamWriterBuilder builder;
+	builder.settings_["indentation"] = "    ";
+	stringJSON = Json::writeString(builder, jsonBody);
 	shootUserJSON.on_next(stringJSON);
 
 }

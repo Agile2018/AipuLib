@@ -5,33 +5,34 @@
 #define AIPULIB_API __declspec(dllimport)
 #endif
 
-#include "Management.h"
-#include "Innovatrics.h"
+#include <string>
+//#include <vector>
+using namespace std;
+
 
 class AIPULIB_API AipuLib
 {
 public:
 	AipuLib();
 	~AipuLib();
-	Rx::subject<string> errorSubject;
-	Rx::observable<string> observableError = errorSubject.get_observable();
-
-	Rx::subject<Mat> frame;
-	Rx::observable<Mat> observableFrame = frame.get_observable();
-
-	Rx::subject<string> userDetected;
-	Rx::observable<string> observableUserJSON = userDetected.get_observable();
-
+	
 	void InitLibrary();
 	void LoadConfiguration(string nameFile);
 	void RunVideo();
+	string GetUserJSON();
+	string GetMessageError();
+	void SetIsRegister(bool option);
+	void StopVideo();
+	void SetLapseFrameToFrame(int lapse);
+	void SetIndexImage(int index);
+
+	/*void GetFaceMat(int &channels, int &width,
+		int &height, int &step1, vector<unsigned char> &data,
+		int &cols, int &rows, int &elemSize1, int &step);*/
 	
-private:
-	Rx::subscriber<string> shootError = errorSubject.get_subscriber();
-	Rx::subscriber<Mat> frameOut = frame.get_subscriber();
-	Rx::subscriber<string> shootUserJSON = userDetected.get_subscriber();
-	Management* management;
-	Innovatrics* innovatrics = new Innovatrics();
+private:	
+	
 	void ObserverError();
+
 };
 

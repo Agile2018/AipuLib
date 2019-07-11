@@ -38,9 +38,10 @@ protected:
 	Json::Reader reader;
 	File* manageFile = new File();
 
-	void WriteJSONToString() {
-		Json::StyledWriter writer;
-		stringJSON = writer.write(jsonBody);
+	void WriteJSONToString() {		
+		Json::StreamWriterBuilder builder;
+		builder.settings_["indentation"] = "    ";
+		stringJSON = Json::writeString(builder, jsonBody);
 
 	}
 	void SaveConfiguration() {
