@@ -4,6 +4,7 @@
 #include "ErrorFaceLib.h"
 #include "iface.h"
 #include "idkit.h"
+#include "GraphicProcessor.h"
 
 class Innovatrics
 {
@@ -25,6 +26,8 @@ private:
 	bool InitParamsGraphicProcessor();
 	bool isGraphicProcessor = false;
 	void ObserverError();
+	GraphicProcessor* graphicProcessor = new GraphicProcessor();
+	void VerifyProcessorGraphic();
 };
 
 

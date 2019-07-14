@@ -74,10 +74,6 @@ void AipuLib::SetIsRegister(bool option) {
 	management->SetIsRegister(option);
 }
 
-void AipuLib::RunVideo() {
-	management->RunVideo();
-}
-
 string AipuLib::GetUserJSON() {
 	cout << "PROPERTY AIPU: " << userJson << endl;
 	return userJson;
@@ -88,15 +84,15 @@ string AipuLib::GetMessageError() {
 	return messageError;
 }
 
-void AipuLib::StopVideo() {
-	management->StopCapture();
+
+void AipuLib::SetWorkMode(int mode) {
+	management->SetWorkMode(mode);
 }
 
-void AipuLib::SetLapseFrameToFrame(int lapse) {
-	management->SetLapseFrame(lapse);
+int AipuLib::GetWorkMode() {
+	return management->GetWorkMode();
 }
 
-void AipuLib::SetIndexImage(int index) {
-	management->SetIndexImage(index);
+void AipuLib::RecognitionFace(unsigned char* image, int rows, int cols) {
+	management->RecognitionFace(image, rows, cols);
 }
-

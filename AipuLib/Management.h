@@ -127,36 +127,29 @@ public:
 		return configurationFile->GetStringJSON();
 	}
 
-	void RunVideo();
+	
 	void SetIsRegister(bool option) {
 		identify->SetIsRegister(option);
+	}	
+
+	void SetWorkMode(int mode) {
+		workMode = mode;
 	}
 
-	void StopCapture() {
-		video->StopCapture();
+	int GetWorkMode() {
+		return workMode;
 	}
-
-	void SetLapseFrame(int lapse) {
-		video->SetLapseFrame(lapse);
-	}
-
-	void SetIndexImage(int index) {
-		video->SetIndexImage(index);
-	}
-
+	
+	void RecognitionFace(unsigned char* image, int rows, int cols);
 	Rx::subject<Either*> errorSubject;
 	Rx::observable<Either*> observableError = errorSubject.get_observable();
-
-	/*Rx::subject<Mat> frame;
-	Rx::observable<Mat> observableFrame = frame.get_observable();*/
 
 	Rx::subject<string> userDetected;
 	Rx::observable<string> observableUserJSON = userDetected.get_observable();
 
 
 private:	
-	Rx::subscriber<Either*> shootError = errorSubject.get_subscriber();
-	//Rx::subscriber<Mat> frameOut = frame.get_subscriber();
+	Rx::subscriber<Either*> shootError = errorSubject.get_subscriber();	
 	Rx::subscriber<string> shootUserJSON = userDetected.get_subscriber();
 	ConfigurationFile* configurationFile = new ConfigurationFile();
 	FaceModel* faceModel = new FaceModel();
@@ -176,10 +169,9 @@ private:
 	void SaveDataTraining(int quantityDetected, int day, int hour, int minute);
 	void VerifyTrainingLapse();
 	int SetStateFlow(int minute);
-	void GetModelOneToOne(Mat image);
-	void GetModelsByBatch(Mat image);
-	void ProcessImage(Mat image);
-	void ObserverVideo();
+	void GetModelOneToOne(Mat image); //Mat image
+	void GetModelsByBatch(Mat image); //
+	Mat ByteToMat(unsigned char* image, int rows, int cols);	
 	void ObserverTemplateImage();
 	void ObserverIdentifyFace();
 	void ObserverDatabase();
@@ -201,7 +193,8 @@ private:
 		database->configuration->ParseJSONToObject();
 	}
 
-	void RunVideoTemp();
+	void ProcessImage(Mat image); 
+	
 };
 
 #endif // !Management_h

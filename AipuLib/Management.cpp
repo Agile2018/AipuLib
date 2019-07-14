@@ -4,7 +4,7 @@ Management::Management()
 {
 	SetDirectoryConfiguration();
 	ObserverError();
-	ObserverVideo();	
+	
 	ObserverTemplateImage();
 	ObserverIdentifyFace();
 	ObserverDatabase();
@@ -152,8 +152,7 @@ void Management::VerifyTrainingLapse() {
 int Management::SetStateFlow(int minute) {	
 	int valueTrend = flowTrend->GetFlowTrendForMinute(minute);
 	cout << "VALUE TREND: " << valueTrend << endl;
-	video->ResetCountProcessedImages();
-	faceModel->ResetCountProcessedImages();
+	
 	
 	if (timeDurationSingleDetection != 0.0)
 	{
@@ -178,8 +177,10 @@ int Management::SetStateFlow(int minute) {
 
 }
 
-void Management::GetModelOneToOne(Mat image) {	
-	vector<uchar> buffer = video->WriteImageOnBuffer(image);
+
+void Management::GetModelOneToOne(Mat image) {		
+	vector<uchar> buffer = video->WriteImageOnBuffer(image);	
+
 	chrono::steady_clock sc;
 	auto start = sc.now();
 	int count = faceModel->ModelOneToOne(buffer);
@@ -195,11 +196,9 @@ void Management::GetModelOneToOne(Mat image) {
 
 }
 
-
-void Management::GetModelsByBatch(Mat image) {
-	
-	video->WriteBatchOfImagesOnBuffer(image);
-	if (video->GetProcessedImages() == SIZE_BUFFER) { 
+void Management::GetModelsByBatch(Mat image) {	
+	video->WriteBatchOfImagesOnBuffer(image); 
+	if (video->GetProcessedImages() == SIZE_BUFFER) {
 		std::vector<std::vector<uchar>> bufferImages = video->GetBufferOfImages();
 		countImagesDetected += faceModel->ModelByBatch(bufferImages);
 		video->ClearBufferImagesBatch();
@@ -237,33 +236,23 @@ void Management::ProcessImage(Mat image) {
 
 }
 
-void Management::ObserverVideo() {
-	auto frame
-		= video->observableImage.map([](Mat image) {
-		return image;
-	});
-
-	auto subscription = frame.subscribe([this](Mat image) {
-		cv::resize(image, image, cv::Size(), 0.5, 0.5, INTER_LINEAR_EXACT);
-
-		if (!flagNextFrame) {
-			flagNextFrame = true;
-
-			std::thread squ(&Management::ProcessImage, this, image);
-			squ.detach();
-
-		}		
+void Management::RecognitionFace(unsigned char* image, int rows, int cols) {
+	if (!flagNextFrame) {
+		flagNextFrame = true;
+		Mat matImage = ByteToMat(image, rows, cols);
 		
-	});
+		std::thread squ(&Management::ProcessImage, this, matImage);
+		squ.detach();
+
+	}
 }
 
-void Management::RunVideo() {	
-	flowTrend->Init();
-	std::thread squ(&Management::RunVideoTemp, this);
-	squ.detach();
-	
+Mat Management::ByteToMat(unsigned char* image, int rows, int cols) {
+	Mat matImage = Mat(rows, cols, CV_8UC3);
+	matImage.data = image;
+	Mat reverseImage;
+	bitwise_not(matImage, reverseImage);
+	//imwrite("147215.png", reverseImage);
+	return reverseImage;
 }
 
-void Management::RunVideoTemp() {		
-	video->RunVideo();
-}

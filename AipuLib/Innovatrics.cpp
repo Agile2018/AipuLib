@@ -3,12 +3,19 @@
 Innovatrics::Innovatrics()
 {
 	ObserverError();
+	std::thread tvg(&Innovatrics::VerifyProcessorGraphic, this);
+	tvg.detach();
 }
 
 Innovatrics::~Innovatrics()
 {
 	IFACE_Terminate();
 
+}
+
+void Innovatrics::VerifyProcessorGraphic()
+{
+	isGraphicProcessor = graphicProcessor->ThereIsGraphicProcessor();
 }
 
 void Innovatrics::ObserverError() {

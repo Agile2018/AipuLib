@@ -24,10 +24,6 @@ public:
 		nameDirectory = name;
 	}
 
-	void ResetCountProcessedImages() {
-		processedImages = 0;
-	}
-
 	void Terminate();
 	int ModelByBatch(std::vector<std::vector<unsigned char>> bufferOfImagesBatch);
 	int ModelOneToOne(vector<unsigned char> buffer);
@@ -42,8 +38,7 @@ private:
 	const string nameFileCropImage = "imgCrop.png";
 	ErrorFaceLib* error = new ErrorFaceLib();
 	Rx::subscriber<Either*> shootError = errorSubject.get_subscriber();
-	//int batchTotalSize = BATCH_TOTAL_SIZE;
-	int processedImages = 0;
+	
 	string nameFileImage;
 	string nameDirectory;
 	Rx::subscriber<Molded*> templateOut = templateImage.get_subscriber();

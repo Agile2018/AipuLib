@@ -221,6 +221,7 @@ void FaceModel::GetBatchModels(int countFacesDetected, void* facesDetected[BATCH
 	error->CheckError(errorCode, error->medium);
 }
 
+
 int FaceModel::ModelOneToOne(vector<unsigned char> buffer) {
 	int lenght, width, height, errorCode, templates;
 	const char* imgData = reinterpret_cast<const char*> (&buffer[0]);

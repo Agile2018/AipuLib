@@ -18,17 +18,15 @@ public:
 	
 	void InitLibrary();
 	void LoadConfiguration(string nameFile);
-	void RunVideo();
+	
 	string GetUserJSON();
 	string GetMessageError();
 	void SetIsRegister(bool option);
-	void StopVideo();
-	void SetLapseFrameToFrame(int lapse);
-	void SetIndexImage(int index);
-
-	/*void GetFaceMat(int &channels, int &width,
-		int &height, int &step1, vector<unsigned char> &data,
-		int &cols, int &rows, int &elemSize1, int &step);*/
+	
+	void SetWorkMode(int mode);
+	int GetWorkMode();
+	void RecognitionFace(unsigned char* image, int rows, int cols);
+	
 	
 private:	
 	
