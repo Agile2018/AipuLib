@@ -33,11 +33,8 @@ void AipuLib::ObserverError() {
 
 	auto subscriptionErrorManagement = observerErrorManagement.subscribe([this](Either* either) {
 		messageError = to_string(either->GetCode()) + ": " + either->GetLabel();
-		
 
 	});
-
-	
 
 	auto observerDatabase = management->observableUserJSON.map([](string jsonUser) {
 		return jsonUser;
@@ -95,4 +92,9 @@ int AipuLib::GetWorkMode() {
 
 void AipuLib::RecognitionFace(unsigned char* image, int rows, int cols) {
 	management->RecognitionFace(image, rows, cols);
+}
+
+void AipuLib::Terminate() {
+	innovatrics->Terminate();
+	management->Destroy();
 }

@@ -38,7 +38,7 @@ private:
 	const string nameFileCropImage = "imgCrop.png";
 	ErrorFaceLib* error = new ErrorFaceLib();
 	Rx::subscriber<Either*> shootError = errorSubject.get_subscriber();
-	
+	std::vector<string> pathCropImages;
 	string nameFileImage;
 	string nameDirectory;
 	Rx::subscriber<Molded*> templateOut = templateImage.get_subscriber();
@@ -49,6 +49,7 @@ private:
 	void CreateTemplate(void* face);
 	int GetOneModel(unsigned char* rawImage, int width, int height);
 	void ObserverError();
+
 };
 
 

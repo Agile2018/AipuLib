@@ -16,6 +16,7 @@ public:
 		isGraphicProcessor = processor;
 	}
 	void SetParamsLibrary();
+	void Terminate();
 	
 	Rx::subject<Either*> errorSubject;
 	Rx::observable<Either*> observableError = errorSubject.get_observable();	

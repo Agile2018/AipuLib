@@ -92,9 +92,12 @@ int FaceModel::DetectByBatch(void* facesDetected[BATCH_SIZE],
 					{
 						errorCode = IFACE_CloneEntity(faceTemp, facesDetected[countFacesDetected]);
 						error->CheckError(errorCode, error->medium);
-						string pathImage = nameDirectory + "/" + to_string(countFacesDetected) + nameFileCropImage;
+						int randomName = rand() % 100 + 1;
+						string pathImage = nameDirectory + "/" + to_string(randomName) + ".png";
+						//string pathImage = nameDirectory + "/" + to_string(countFacesDetected) + nameFileCropImage;
 						std::thread(&FaceModel::FaceCropImage, this,
 							facesDetected[countFacesDetected], pathImage).detach();
+						pathCropImages.push_back(pathImage);
 						countFacesDetected++;
 					}
 
@@ -198,11 +201,11 @@ void FaceModel::GetBatchModels(int countFacesDetected, void* facesDetected[BATCH
 	
 	for (int i = 0; i < countFacesDetected; i++)
 	{
-		string pathImage = nameDirectory + "/" + to_string(countFacesDetected) + nameFileCropImage;
+		//string pathImage = nameDirectory + "/" + to_string(countFacesDetected) + nameFileCropImage;
 		Molded* model = new Molded();
 		model->SetMoldImage(batchTemplates[i]);
 		model->SetMoldSize(templateBatchDataSize);
-		model->SetPathImage(pathImage);
+		model->SetPathImage(pathCropImages[i]);
 		templateOut.on_next(model);
 		
 	}	
@@ -219,6 +222,7 @@ void FaceModel::GetBatchModels(int countFacesDetected, void* facesDetected[BATCH
 
 	errorCode = IFACE_ReleaseEntity(faceHandler);
 	error->CheckError(errorCode, error->medium);
+	pathCropImages.clear();
 }
 
 
@@ -303,6 +307,7 @@ int FaceModel::GetOneModel(unsigned char* rawImage, int width, int height) {
 		faceHandler, &detectedFaces, &faceTemp);
 	
 	if (errorCode == IFACE_OK) {
+		
 		if (detectedFaces != EMPTY_FACE)
 		{
 			float rightEyeX, rightEyeY, leftEyeX, leftEyeY;
@@ -313,7 +318,8 @@ int FaceModel::GetOneModel(unsigned char* rawImage, int width, int height) {
 			cout << "CONFIDENCE: " << faceConfidence << endl;
 			if (faceConfidence > configuration->GetPrecision())
 			{
-				string pathImage = nameDirectory + "/" + nameFileCropImage;
+				int randomName = rand() % 100 + 1;
+				string pathImage = nameDirectory + "/" + to_string(randomName) + ".png";
 				std::thread(&FaceModel::FaceCropImage, this,
 					faceTemp, pathImage).detach();
 				CreateTemplate(faceTemp);

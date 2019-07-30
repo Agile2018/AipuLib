@@ -17,6 +17,7 @@ public:
 	void SetNameFile(string name);
 	void WriteFile(string content);
 	bool DeleteFile();
+	bool DeleteFile(string filePath);
 	void CreateDirectory();
 	string GetNameDirectory();
 	string ReadFileText();

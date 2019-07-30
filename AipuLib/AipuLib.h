@@ -26,7 +26,7 @@ public:
 	void SetWorkMode(int mode);
 	int GetWorkMode();
 	void RecognitionFace(unsigned char* image, int rows, int cols);
-	
+	void Terminate();
 	
 private:	
 	

@@ -17,11 +17,11 @@ public:
 	vector<uchar> WriteImageOnBuffer(Mat frame);
 	
 	void WriteBatchOfImagesOnBuffer(Mat frame); 
-	void SetNameDirectory(string name) {
+	/*void SetNameDirectory(string name) {
 		nameDirectory = name;
 		manageFile->SetNameDirectory(name);
 		manageFile->CreateDirectory();
-	}
+	}*/
 
 	int GetProcessedImages() {
 		
@@ -36,18 +36,18 @@ public:
 		return bufferOfImagesBatch;
 	}
 
-	ConfigurationVideo* configuration = new ConfigurationVideo();
+	/*ConfigurationVideo* configuration = new ConfigurationVideo();
 	
 	Rx::subject<Either*> errorSubject;
-	Rx::observable<Either*> observableError = errorSubject.get_observable();
+	Rx::observable<Either*> observableError = errorSubject.get_observable();*/
 private:
 	
-	ErrorAipuLib* error = new ErrorAipuLib();
+	/*ErrorAipuLib* error = new ErrorAipuLib();
 	File* manageFile = new File();
 	Rx::subscriber<Either*> shootError = errorSubject.get_subscriber();
 	
 	string nameDirectory;
-	void ObserverError();
+	void ObserverError();*/
 	
 	std::vector<std::vector<uchar>> bufferOfImagesBatch;
 };

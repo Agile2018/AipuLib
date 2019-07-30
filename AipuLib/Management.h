@@ -10,7 +10,7 @@
 #include "Identify.h"
 #include <ctime>
 #include "Database.h"
-//#include "FrameBMP.h"
+
 
 #define SINGLE			1
 #define OPTION_BATCH	2
@@ -33,9 +33,9 @@ public:
 	void LoadConfiguration(string nameFile) {
 		configurationFile->SetNameFileConfiguration(nameFile);
 		configurationFile->ParseJSONToObject();
-		SetNameFileConfigurationVideo(configurationFile->GetNameFileConfigurationVideo());
+		//SetNameFileConfigurationVideo(configurationFile->GetNameFileConfigurationVideo());
 		SetNameFileConfigurationFace(configurationFile->GetNameFileConfigurationFaceModel());
-		video->SetNameDirectory(configurationFile->GetNameDirectoryTempWork());
+		//video->SetNameDirectory(configurationFile->GetNameDirectoryTempWork());
 		faceModel->SetNameDirectory(configurationFile->GetNameDirectoryTempWork());
 		train->CreateTrainingDirectory(configurationFile->GetNameDirectoryTraining());
 		flowTrend->SetDirectory(configurationFile->GetNameDirectoryTraining());
@@ -65,30 +65,30 @@ public:
 		
 	}
 
-	void SetPathVideo(string valuePath) {
-		video->configuration->SetPath(valuePath);
-	}
-	void SetUserVideo(string valueUser) {
-		video->configuration->SetUser(valueUser);
-	}
-	void SetPasswordVideo(string valuePassword) {
-		video->configuration->SetPassword(valuePassword);
-	}
-	void SetResolutionVideo(string valueResolution) {
-		video->configuration->SetResolution(valueResolution);
-	}
-	void SetFPSVideo(string valueFps) {
-		video->configuration->SetFPS(valueFps);
-	}
-	void SetImageTempVideo(string name) {
-		video->configuration->SetImageTemp(name);
-	}
+	//void SetPathVideo(string valuePath) {
+	//	video->configuration->SetPath(valuePath);
+	//}
+	//void SetUserVideo(string valueUser) {
+	//	video->configuration->SetUser(valueUser);
+	//}
+	//void SetPasswordVideo(string valuePassword) {
+	//	video->configuration->SetPassword(valuePassword);
+	//}
+	//void SetResolutionVideo(string valueResolution) {
+	//	video->configuration->SetResolution(valueResolution);
+	//}
+	//void SetFPSVideo(string valueFps) {
+	//	video->configuration->SetFPS(valueFps);
+	//}
+	//void SetImageTempVideo(string name) {
+	//	video->configuration->SetImageTemp(name);
+	//}
 
-	void SaveConfigurationVideo(string nameFile) {
+	/*void SaveConfigurationVideo(string nameFile) {
 		video->configuration->SetNameFileConfiguration(nameFile);
 		video->configuration->ParseMapToJSON();		
 		configurationFile->SetNameFileConfigurationVideo(nameFile);
-	}
+	}*/
 
 	void SetMinEyeDistance(int minDistance) {
 		faceModel->configuration->SetMinEyeDistance(minDistance);
@@ -116,9 +116,9 @@ public:
 		configurationFile->ParseMapToJSON();
 	}
 
-	string GetStringJSONVideo() {
+	/*string GetStringJSONVideo() {
 		return video->configuration->GetStringJSON();
-	}
+	}*/
 
 	string GetStringJSONFaceModel() {
 		return faceModel->configuration->GetStringJSON();
@@ -139,8 +139,19 @@ public:
 	int GetWorkMode() {
 		return workMode;
 	}
-	
+
 	void RecognitionFace(unsigned char* image, int rows, int cols);
+	void Destroy() {
+		delete configurationFile;
+		delete faceModel;
+		delete video;
+		delete flowTrend;
+		delete train;
+		delete movement;
+		delete identify;
+		delete database;
+	}
+
 	Rx::subject<Either*> errorSubject;
 	Rx::observable<Either*> observableError = errorSubject.get_observable();
 
@@ -169,18 +180,18 @@ private:
 	void SaveDataTraining(int quantityDetected, int day, int hour, int minute);
 	void VerifyTrainingLapse();
 	int SetStateFlow(int minute);
-	void GetModelOneToOne(Mat image); //Mat image
-	void GetModelsByBatch(Mat image); //
+	void GetModelOneToOne(Mat image); 
+	void GetModelsByBatch(Mat image);
 	Mat ByteToMat(unsigned char* image, int rows, int cols);	
 	void ObserverTemplateImage();
 	void ObserverIdentifyFace();
 	void ObserverDatabase();
-	void SetNameFileConfigurationVideo(string name) {
+	/*void SetNameFileConfigurationVideo(string name) {
 		video->configuration->SetNameFileConfiguration(name);
 		video->configuration->ParseJSONToObject();
 		faceModel->SetNameFileImage(video->configuration->GetImageTemp());
 
-	}
+	}*/
 
 	void SetNameFileConfigurationFace(string name) {
 		faceModel->configuration->SetNameFileConfiguration(name);

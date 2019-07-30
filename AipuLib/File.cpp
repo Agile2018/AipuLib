@@ -37,6 +37,17 @@ bool File::DeleteFile() {
 
 }
 
+bool File::DeleteFile(string filePath) {
+	
+	if (remove(filePath.c_str()) != 0) {
+		return false;
+	}
+	else {
+		return true;
+	}
+
+}
+
 void File::CreateDirectory() {
 	_mkdir((char *)&nameDirectory);
 }

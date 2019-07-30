@@ -16,7 +16,7 @@ Management::~Management()
 
 void Management::SetDirectoryConfiguration() {
 	faceModel->configuration->SetNameDirectory(DIRECTORY_CONFIGURATION);
-	video->configuration->SetNameDirectory(DIRECTORY_CONFIGURATION);
+	//video->configuration->SetNameDirectory(DIRECTORY_CONFIGURATION);
 	configurationFile->SetNameDirectory(DIRECTORY_CONFIGURATION);
 	database->configuration->SetNameDirectory(DIRECTORY_CONFIGURATION);
 }
@@ -80,13 +80,13 @@ void Management::ObserverError() {
 		
 	});
 
-	auto videoError = video->observableError.map([](Either* either) {
+	/*auto videoError = video->observableError.map([](Either* either) {
 		return either;
 	});
 
 	auto subscriptionVideoError = videoError.subscribe([this](Either* either) {		
 		shootError.on_next(either);
-	});
+	});*/
 
 	auto flowTrendError = flowTrend->observableError.map([](Either* either) {		
 		return either;
@@ -156,7 +156,8 @@ int Management::SetStateFlow(int minute) {
 	
 	if (timeDurationSingleDetection != 0.0)
 	{
-		int imagesWait = static_cast<int>((SIXTY_SECONDS / timeDurationSingleDetection) / 2);
+		int imagesWait = static_cast<int>(
+			(SIXTY_SECONDS / timeDurationSingleDetection) / 3);
 		
 		if (valueTrend > imagesWait)
 		{
@@ -212,6 +213,7 @@ void Management::ProcessImage(Mat image) {
 	switch (workMode)
 	{
 	case SINGLE:
+		
 		GetModelOneToOne(image);
 		cout << "SINGLE DETECTION" << endl;
 		break;
@@ -237,6 +239,7 @@ void Management::ProcessImage(Mat image) {
 }
 
 void Management::RecognitionFace(unsigned char* image, int rows, int cols) {
+	
 	if (!flagNextFrame) {
 		flagNextFrame = true;
 		Mat matImage = ByteToMat(image, rows, cols);

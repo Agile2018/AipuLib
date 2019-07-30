@@ -15,6 +15,7 @@
 #include <vector>
 #include <json\json.h>
 #include "ConfigurationDatabase.h"
+#include "File.h"
 
 using namespace cv;
 using namespace std;
@@ -57,6 +58,7 @@ private:
 	Rx::subscriber<Either*> shootError = errorSubject.get_subscriber();
 	Rx::subscriber<string> shootUserJSON = userSubject.get_subscriber();
 	ErrorAipuLib* error = new ErrorAipuLib();
+	File* file = new File();
 	Base64* base64 = new Base64();
 	void AddUser(User* user);
 	void AddRecordsUser(User* user);
@@ -67,7 +69,7 @@ private:
 	void BuildNewUser(User* user);
 	string QueryImageOfUser(int idFaceUser);
 	string FileImageToStringBase64(string path);
-	
+	void DeleteFileTempCropImage(string filePath);
 };
 
 

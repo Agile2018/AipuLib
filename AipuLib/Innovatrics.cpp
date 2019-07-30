@@ -35,7 +35,7 @@ void Innovatrics::InitLibrary() {
 	if (errorCode != IFACE_OK) {		
 		error->CheckError(errorCode, error->gross);
 	}	
-
+	
 }
 
 bool Innovatrics::InitParamsGraphicProcessor() {
@@ -66,6 +66,19 @@ void Innovatrics::SetParamsLibrary() {
 		if (errorCode != IFACE_OK) {
 			error->CheckError(errorCode, error->medium);
 		}
+		cout << "CUDA SI EXISTE.." << endl;
 	}
+	else {
+		cout << "CUDA NO EXISTE.." << endl;
+	}
+	
+}
 
+void Innovatrics::Terminate() {
+	int errorCode;
+
+	errorCode = IFACE_Terminate();
+	if (errorCode != IFACE_OK) {
+		error->CheckError(errorCode, error->gross);
+	}
 }

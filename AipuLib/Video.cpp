@@ -2,33 +2,33 @@
 
 Video::Video()
 {
-	ObserverError();
+	//ObserverError();
 }
 
 Video::~Video()
 {
 }
 
-void Video::ObserverError() {
-	auto observerError = error->observableError.map([](Either* either) {
-		return either;
-	});
-
-	auto subscriptionError = observerError.subscribe([this](Either* either) {
-		
-		shootError.on_next(either);
-	});
-
-	auto observerErrorConfiguration = configuration->observableError.map([](Either* either) {
-		return either;
-	});
-
-	auto subscriptionErrorConfiguration = observerErrorConfiguration.subscribe([this](Either* either) {
-		
-		shootError.on_next(either);
-	});
-
-}
+//void Video::ObserverError() {
+//	auto observerError = error->observableError.map([](Either* either) {
+//		return either;
+//	});
+//
+//	auto subscriptionError = observerError.subscribe([this](Either* either) {
+//		
+//		shootError.on_next(either);
+//	});
+//
+//	auto observerErrorConfiguration = configuration->observableError.map([](Either* either) {
+//		return either;
+//	});
+//
+//	auto subscriptionErrorConfiguration = observerErrorConfiguration.subscribe([this](Either* either) {
+//		
+//		shootError.on_next(either);
+//	});
+//
+//}
 
 vector<uchar> Video::WriteImageOnBuffer(Mat frame) {
 	vector<uchar> bufferImage;

@@ -118,9 +118,14 @@ string Database::FileImageToStringBase64(string path) {
 			bufferImage, std::vector<int>(params, params + 2));
 		uchar* buffToBase64 = reinterpret_cast<uchar*> (&bufferImage[0]);
 
-		encodedPng = base64->base64_encode(buffToBase64, (unsigned int)bufferImage.size());
+		encodedPng = base64->base64_encode(buffToBase64, 
+			(unsigned int)bufferImage.size());
+		std::thread(&Database::DeleteFileTempCropImage, this, path).detach();
 	}
 	return encodedPng;
+}
+void Database::DeleteFileTempCropImage(string filePath) {
+	file->DeleteFile(filePath);
 }
 
 void Database::ObserverError() {
