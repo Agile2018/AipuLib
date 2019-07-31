@@ -46,7 +46,7 @@ private:
 	int DetectByBatch(void* facesDetected[BATCH_SIZE], 
 		std::vector<std::vector<unsigned char>> bufferOfImagesBatch);
 	void GetBatchModels(int countFacesDetected, void* facesDetected[BATCH_SIZE]);
-	void CreateTemplate(void* face);
+	void CreateTemplate(void* face, string pathImageCrop);
 	int GetOneModel(unsigned char* rawImage, int width, int height);
 	void ObserverError();
 

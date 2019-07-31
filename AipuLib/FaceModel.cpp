@@ -42,6 +42,7 @@ int FaceModel::DetectByBatch(void* facesDetected[BATCH_SIZE],
 	int errorCode, countFacesDetected = 0;
 	void* faceHandler;
 
+	srand((unsigned)time(NULL));
 	errorCode = IFACE_CreateFaceHandler(&faceHandler);
 	error->CheckError(errorCode, error->medium);
 
@@ -258,7 +259,7 @@ int FaceModel::ModelOneToOne(vector<unsigned char> buffer) {
 }
 
 
-void FaceModel::CreateTemplate(void* face) {
+void FaceModel::CreateTemplate(void* face, string pathImageCrop) {
 	int errorCode;
 	int templateSize;
 	void* faceHandler;	
@@ -275,11 +276,11 @@ void FaceModel::CreateTemplate(void* face) {
 		}
 		else
 		{
-			string pathImage = nameDirectory + "/" + nameFileCropImage;
+			//string pathImage = nameDirectory + "/" + nameFileCropImage;
 			Molded* model = new Molded();
 			model->SetMoldImage(templateData);
 			model->SetMoldSize(templateSize);
-			model->SetPathImage(pathImage);
+			model->SetPathImage(pathImageCrop);
 			templateOut.on_next(model);
 		}
 		delete[] templateData;
@@ -318,11 +319,13 @@ int FaceModel::GetOneModel(unsigned char* rawImage, int width, int height) {
 			cout << "CONFIDENCE: " << faceConfidence << endl;
 			if (faceConfidence > configuration->GetPrecision())
 			{
+				srand((unsigned)time(NULL));
 				int randomName = rand() % 100 + 1;
 				string pathImage = nameDirectory + "/" + to_string(randomName) + ".png";
+				cout << "PATH IMAGE .." << pathImage << endl;
 				std::thread(&FaceModel::FaceCropImage, this,
 					faceTemp, pathImage).detach();
-				CreateTemplate(faceTemp);
+				CreateTemplate(faceTemp, pathImage);
 			}
 			
 		}
