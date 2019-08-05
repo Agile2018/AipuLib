@@ -32,7 +32,8 @@ public:
 
 	void Configure();
 	void InsertNewUser(User* user);	
-	void FindUserByIdFace(int idFaceUser);
+	void FindUserByIdFace(int idFaceUser, string pathFileCropImage);
+	
 	ConfigurationDatabase* configuration = new ConfigurationDatabase();
 	Rx::subject<Either*> errorSubject;
 	Rx::observable<Either*> observableError = errorSubject.get_observable();

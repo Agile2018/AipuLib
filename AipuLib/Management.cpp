@@ -35,7 +35,8 @@ void Management::ObserverIdentifyFace() {
 			database->InsertNewUser(user);
 		}
 		else {
-			database->FindUserByIdFace(user->GetUserIdIFace());
+			database->FindUserByIdFace(user->GetUserIdIFace(), 
+				user->GetPathImageTemp());
 		}
 		
 	});

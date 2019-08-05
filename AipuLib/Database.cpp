@@ -156,8 +156,9 @@ void Database::ObserverError() {
 
 }
 
-void Database::FindUserByIdFace(int idFaceUser) {
+void Database::FindUserByIdFace(int idFaceUser, string pathFileCropImage) {
 	std::thread(&Database::QueryUserByFace, this, idFaceUser).detach();
+	std::thread(&Database::DeleteFileTempCropImage, this, pathFileCropImage).detach();
 }
 
 void Database::QueryUserByFace(int idFaceUser) {
