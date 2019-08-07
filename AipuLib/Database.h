@@ -59,6 +59,7 @@ private:
 	Rx::subscriber<Either*> shootError = errorSubject.get_subscriber();
 	Rx::subscriber<string> shootUserJSON = userSubject.get_subscriber();
 	ErrorAipuLib* error = new ErrorAipuLib();
+
 	File* file = new File();
 	Base64* base64 = new Base64();
 	void AddUser(User* user);
