@@ -34,10 +34,18 @@ public:
 		return pathImage;
 	}
 
+	int GetIdClient() {
+		return idClient;
+	}
+
+	void SetIdClient(int id) {
+		idClient = id;
+	}
 private:
 	char* moldImage;
 	int moldSize;
 	string pathImage;
+	int idClient;
 };
 
 

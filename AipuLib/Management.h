@@ -35,7 +35,7 @@ public:
 		configurationFile->ParseJSONToObject();
 		//SetNameFileConfigurationVideo(configurationFile->GetNameFileConfigurationVideo());
 		SetNameFileConfigurationFace(configurationFile->GetNameFileConfigurationFaceModel());
-		//video->SetNameDirectory(configurationFile->GetNameDirectoryTempWork());
+		video->SetNameDirectory(configurationFile->GetNameDirectoryTempWork());
 		faceModel->SetNameDirectory(configurationFile->GetNameDirectoryTempWork());
 		train->CreateTrainingDirectory(configurationFile->GetNameDirectoryTraining());
 		flowTrend->SetDirectory(configurationFile->GetNameDirectoryTraining());
@@ -140,7 +140,8 @@ public:
 		return workMode;
 	}
 
-	void RecognitionFace(unsigned char* image, int rows, int cols);
+	void RecognitionFace(unsigned char* image, 
+		int rows, int cols, int client);
 	void Destroy() {
 		delete configurationFile;
 		delete faceModel;
@@ -180,8 +181,8 @@ private:
 	void SaveDataTraining(int quantityDetected, int day, int hour, int minute);
 	void VerifyTrainingLapse();
 	int SetStateFlow(int minute);
-	void GetModelOneToOne(Mat image); 
-	void GetModelsByBatch(Mat image);
+	void GetModelOneToOne(Mat image, int client);
+	void GetModelsByBatch(Mat image, int client);
 	Mat ByteToMat(unsigned char* image, int rows, int cols);	
 	void ObserverTemplateImage();
 	void ObserverIdentifyFace();
@@ -204,7 +205,7 @@ private:
 		database->configuration->ParseJSONToObject();
 	}
 
-	void ProcessImage(Mat image); 
+	void ProcessImage(Mat image, int client);
 	
 };
 

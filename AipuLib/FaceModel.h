@@ -25,8 +25,9 @@ public:
 	}
 
 	void Terminate();
-	int ModelByBatch(std::vector<std::vector<unsigned char>> bufferOfImagesBatch);
-	int ModelOneToOne(vector<unsigned char> buffer);
+	int ModelByBatch(std::vector<std::vector<unsigned char>> bufferOfImagesBatch, 
+		std::vector<int> clients);
+	int ModelOneToOne(vector<unsigned char> buffer, int client);
 	
 	ConfigurationIFace* configuration = new ConfigurationIFace();
 	Rx::subject<Molded*> templateImage;
@@ -39,15 +40,16 @@ private:
 	ErrorFaceLib* error = new ErrorFaceLib();
 	Rx::subscriber<Either*> shootError = errorSubject.get_subscriber();
 	std::vector<string> pathCropImages;
+	std::vector<int> clientsId;
 	string nameFileImage;
 	string nameDirectory;
 	Rx::subscriber<Molded*> templateOut = templateImage.get_subscriber();
 	void FaceCropImage(void* face, string pathImage);	
 	int DetectByBatch(void* facesDetected[BATCH_SIZE], 
-		std::vector<std::vector<unsigned char>> bufferOfImagesBatch);
+		std::vector<std::vector<unsigned char>> bufferOfImagesBatch, std::vector<int> clients);
 	void GetBatchModels(int countFacesDetected, void* facesDetected[BATCH_SIZE]);
-	void CreateTemplate(void* face, string pathImageCrop);
-	int GetOneModel(unsigned char* rawImage, int width, int height);
+	void CreateTemplate(void* face, string pathImageCrop, int client);
+	int GetOneModel(unsigned char* rawImage, int width, int height, int client);
 	void ObserverError();
 
 };

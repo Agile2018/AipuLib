@@ -38,7 +38,8 @@ void FaceModel::Terminate() {
 }
 
 int FaceModel::DetectByBatch(void* facesDetected[BATCH_SIZE],
-	std::vector<std::vector<unsigned char>> bufferOfImagesBatch) {
+	std::vector<std::vector<unsigned char>> bufferOfImagesBatch, 
+	std::vector<int> clients) {
 	int errorCode, countFacesDetected = 0;
 	void* faceHandler;
 
@@ -99,6 +100,7 @@ int FaceModel::DetectByBatch(void* facesDetected[BATCH_SIZE],
 						std::thread(&FaceModel::FaceCropImage, this,
 							facesDetected[countFacesDetected], pathImage).detach();
 						pathCropImages.push_back(pathImage);
+						clientsId.push_back(clients[i]);
 						countFacesDetected++;
 					}
 
@@ -146,10 +148,11 @@ void FaceModel::FaceCropImage(void* face, string pathImage) {
 	delete[] cropImageData;
 }
 
-int FaceModel::ModelByBatch(std::vector<std::vector<unsigned char>> bufferOfImagesBatch) {
+int FaceModel::ModelByBatch(std::vector<std::vector<unsigned char>> bufferOfImagesBatch, 
+	std::vector<int> clients) {
 	int errorCode;
 	void* facesDetected[BATCH_SIZE];
-	int countFacesDetected = DetectByBatch(facesDetected, bufferOfImagesBatch);
+	int countFacesDetected = DetectByBatch(facesDetected, bufferOfImagesBatch, clients);
 	if (countFacesDetected != 0)
 	{
 		GetBatchModels(countFacesDetected, facesDetected);
@@ -207,6 +210,7 @@ void FaceModel::GetBatchModels(int countFacesDetected, void* facesDetected[BATCH
 		model->SetMoldImage(batchTemplates[i]);
 		model->SetMoldSize(templateBatchDataSize);
 		model->SetPathImage(pathCropImages[i]);
+		model->SetIdClient(clientsId[i]);
 		templateOut.on_next(model);
 		
 	}	
@@ -224,10 +228,11 @@ void FaceModel::GetBatchModels(int countFacesDetected, void* facesDetected[BATCH
 	errorCode = IFACE_ReleaseEntity(faceHandler);
 	error->CheckError(errorCode, error->medium);
 	pathCropImages.clear();
+	clientsId.clear();
 }
 
 
-int FaceModel::ModelOneToOne(vector<unsigned char> buffer) {
+int FaceModel::ModelOneToOne(vector<unsigned char> buffer, int client) {
 	int lenght, width, height, errorCode, templates;
 	const char* imgData = reinterpret_cast<const char*> (&buffer[0]);
 
@@ -246,7 +251,7 @@ int FaceModel::ModelOneToOne(vector<unsigned char> buffer) {
 			}
 			else
 			{
-				templates = GetOneModel(rawImage, width, height);
+				templates = GetOneModel(rawImage, width, height, client);
 			}
 			delete rawImage;
 		}
@@ -259,7 +264,7 @@ int FaceModel::ModelOneToOne(vector<unsigned char> buffer) {
 }
 
 
-void FaceModel::CreateTemplate(void* face, string pathImageCrop) {
+void FaceModel::CreateTemplate(void* face, string pathImageCrop, int client) {
 	int errorCode;
 	int templateSize;
 	void* faceHandler;	
@@ -281,6 +286,7 @@ void FaceModel::CreateTemplate(void* face, string pathImageCrop) {
 			model->SetMoldImage(templateData);
 			model->SetMoldSize(templateSize);
 			model->SetPathImage(pathImageCrop);
+			model->SetIdClient(client);
 			templateOut.on_next(model);
 		}
 		delete[] templateData;
@@ -293,7 +299,8 @@ void FaceModel::CreateTemplate(void* face, string pathImageCrop) {
 
 }
 
-int FaceModel::GetOneModel(unsigned char* rawImage, int width, int height) {
+int FaceModel::GetOneModel(unsigned char* rawImage, 
+	int width, int height, int client) {
 	int detectedFaces = configuration->GetMaxDetect();
 	int errorCode;
 	void* faceTemp;
@@ -325,7 +332,7 @@ int FaceModel::GetOneModel(unsigned char* rawImage, int width, int height) {
 				cout << "PATH IMAGE .." << pathImage << endl;
 				std::thread(&FaceModel::FaceCropImage, this,
 					faceTemp, pathImage).detach();
-				CreateTemplate(faceTemp, pathImage);
+				CreateTemplate(faceTemp, pathImage, client);
 			}
 			
 		}

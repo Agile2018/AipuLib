@@ -32,7 +32,7 @@ public:
 
 	void Configure();
 	void InsertNewUser(User* user);	
-	void FindUserByIdFace(int idFaceUser, string pathFileCropImage);
+	void FindUserByIdFace(int idFaceUser, string pathFileCropImage, int client);
 	
 	ConfigurationDatabase* configuration = new ConfigurationDatabase();
 	Rx::subject<Either*> errorSubject;
@@ -51,6 +51,7 @@ private:
 	const string FIELD_USER_NAME = "name";
 	const string FIELD_USER_ADDRESS = "address";
 	const string FIELD_USER_REGISTER = "register";
+	const string FIELD_CLIENT = "client";
 	const string FORMAT_IMAGE_64 = "data:image/jpeg;base64,";
 	const string PARAMS = "params";
 	const string DATASOURCE = "MongoDB";
@@ -65,7 +66,7 @@ private:
 	void AddRecordsUser(User* user);
 	void AddImageUser(string pathImage, int idUser);
 	void ObserverError();
-	void QueryUserByFace(int idFaceUser);
+	void QueryUserByFace(int idFaceUser, int client);
 	void BuildJSONUser(vector<std::string> values);
 	void BuildNewUser(User* user);
 	string QueryImageOfUser(int idFaceUser);

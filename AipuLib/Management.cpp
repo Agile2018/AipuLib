@@ -36,7 +36,7 @@ void Management::ObserverIdentifyFace() {
 		}
 		else {
 			database->FindUserByIdFace(user->GetUserIdIFace(), 
-				user->GetPathImageTemp());
+				user->GetPathImageTemp(), user->GetClient());
 		}
 		
 	});
@@ -180,12 +180,12 @@ int Management::SetStateFlow(int minute) {
 }
 
 
-void Management::GetModelOneToOne(Mat image) {		
+void Management::GetModelOneToOne(Mat image, int client) {
 	vector<uchar> buffer = video->WriteImageOnBuffer(image);	
 
 	chrono::steady_clock sc;
 	auto start = sc.now();
-	int count = faceModel->ModelOneToOne(buffer);
+	int count = faceModel->ModelOneToOne(buffer, client);
 	if (count != 0)
 	{
 		auto end = sc.now();
@@ -198,28 +198,30 @@ void Management::GetModelOneToOne(Mat image) {
 
 }
 
-void Management::GetModelsByBatch(Mat image) {	
-	video->WriteBatchOfImagesOnBuffer(image); 
+void Management::GetModelsByBatch(Mat image, int client) {
+	video->WriteBatchOfImagesOnBuffer(image, client);
 	if (video->GetProcessedImages() == SIZE_BUFFER) {
 		std::vector<std::vector<uchar>> bufferImages = video->GetBufferOfImages();
-		countImagesDetected += faceModel->ModelByBatch(bufferImages);
+		std::vector<int> clients = video->GetBufferOfClients();
+		countImagesDetected += faceModel->ModelByBatch(bufferImages, clients);
 		video->ClearBufferImagesBatch();
+		video->ClearBufferClientsBatch();
 	}
 
 }
 
-void Management::ProcessImage(Mat image) {
+void Management::ProcessImage(Mat image, int client) {
 	VerifyTrainingLapse();
 
 	switch (workMode)
 	{
 	case SINGLE:
 		
-		GetModelOneToOne(image);
+		GetModelOneToOne(image, client);
 		cout << "SINGLE DETECTION" << endl;
 		break;
 	case OPTION_BATCH:
-		GetModelsByBatch(image);
+		GetModelsByBatch(image, client);
 		cout << "BATCH DETECTION" << endl;
 		break;
 	case MOVEMENT:
@@ -239,13 +241,14 @@ void Management::ProcessImage(Mat image) {
 
 }
 
-void Management::RecognitionFace(unsigned char* image, int rows, int cols) {
+void Management::RecognitionFace(unsigned char* image, 
+	int rows, int cols, int client) {
 	
 	if (!flagNextFrame) {
 		flagNextFrame = true;
 		Mat matImage = ByteToMat(image, rows, cols);
 		
-		std::thread squ(&Management::ProcessImage, this, matImage);
+		std::thread squ(&Management::ProcessImage, this, matImage, client);
 		squ.detach();
 
 	}

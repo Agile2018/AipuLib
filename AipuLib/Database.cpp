@@ -95,12 +95,13 @@ void Database::AddImageUser(string pathImage, int idUser) {
 
 void Database::BuildNewUser(User* user) {
 	int idFace = user->GetUserIdIFace();
+	int client = user->GetClient();
 	std::vector<std::string> values;
 	values.push_back(to_string(idFace));
 	values.push_back(user->GetNameUser());
 	values.push_back(user->GetAddressUser());
 	values.push_back("1");
-
+	values.push_back(to_string(client));
 	BuildJSONUser(values);
 }
 
@@ -156,12 +157,12 @@ void Database::ObserverError() {
 
 }
 
-void Database::FindUserByIdFace(int idFaceUser, string pathFileCropImage) {
-	std::thread(&Database::QueryUserByFace, this, idFaceUser).detach();
+void Database::FindUserByIdFace(int idFaceUser, string pathFileCropImage, int client) {
+	std::thread(&Database::QueryUserByFace, this, idFaceUser, client).detach();
 	std::thread(&Database::DeleteFileTempCropImage, this, pathFileCropImage).detach();
 }
 
-void Database::QueryUserByFace(int idFaceUser) {
+void Database::QueryUserByFace(int idFaceUser, int client) {
 	if (lastUserId != idFaceUser)
 	{
 		auto clientConnection = MongoAccess::instance().GetConnection();
@@ -178,7 +179,7 @@ void Database::QueryUserByFace(int idFaceUser) {
 		values.push_back(view["name"].get_utf8().value.to_string());
 		values.push_back(view["address"].get_utf8().value.to_string());
 		values.push_back("0");
-
+		values.push_back(to_string(client));
 		BuildJSONUser(values);
 
 	}
@@ -195,6 +196,7 @@ void Database::BuildJSONUser(vector<std::string> values) {
 	params.insert(std::pair<std::string, std::string>(FIELD_USER_NAME, values[1]));
 	params.insert(std::pair<std::string, std::string>(FIELD_USER_ADDRESS, values[2]));
 	params.insert(std::pair<std::string, std::string>(FIELD_USER_REGISTER, values[3]));
+	params.insert(std::pair<std::string, std::string>(FIELD_CLIENT, values[4]));
 	std::map<std::string, std::string>::const_iterator it = params.begin(),
 		end = params.end();
 	for (; it != end; ++it) {

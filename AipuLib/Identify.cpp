@@ -54,6 +54,7 @@ void Identify::EnrollUser(Molded* modelImage) {
 		if (errorCode == IENGINE_E_NOERROR && userID != 0) {
 			userForDatabase->SetUserIdIFace(userID);
 			userForDatabase->SetPathImageTemp(modelImage->GetPathImage());
+			userForDatabase->SetClient(modelImage->GetIdClient());
 			shootUser.on_next(userForDatabase);
 		}
 	}

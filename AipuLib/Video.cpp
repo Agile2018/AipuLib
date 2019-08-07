@@ -42,11 +42,11 @@ vector<uchar> Video::WriteImageOnBuffer(Mat frame) {
 }
 
 
-void Video::WriteBatchOfImagesOnBuffer(Mat frame) //Mat frame 
+void Video::WriteBatchOfImagesOnBuffer(Mat frame, int client) //Mat frame 
 {
-
 	vector<uchar> bufferImage = WriteImageOnBuffer(frame);	
 	bufferOfImagesBatch.push_back(bufferImage);
+	clients.push_back(client);
 
 }
 

@@ -13,6 +13,7 @@ public:
 	const string fieldNameUser = "name";
 	const string fieldAddressUser = "address";
 	const string fieldId = "_id";
+	const string fieldClient = "client";
 
 	void SetIdDb(string id) {
 		idDb = id;
@@ -59,6 +60,13 @@ public:
 		return isNew;
 	}
 
+	void SetClient(int id) {
+		client = id;
+	}
+	int GetClient() {
+		return client;
+	}
+
 private:
 	string idDb;
 	int userIdIFace;	
@@ -66,6 +74,7 @@ private:
 	string addressUser;
 	string pathImageTemp;
 	bool isNew = false;
+	int client;
 };
 
 

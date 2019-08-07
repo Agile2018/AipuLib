@@ -90,8 +90,8 @@ int AipuLib::GetWorkMode() {
 	return management->GetWorkMode();
 }
 
-void AipuLib::RecognitionFace(unsigned char* image, int rows, int cols) {
-	management->RecognitionFace(image, rows, cols);
+void AipuLib::RecognitionFace(unsigned char* image, int rows, int cols, int client) {
+	management->RecognitionFace(image, rows, cols, client);
 }
 
 void AipuLib::Terminate() {
