@@ -329,7 +329,7 @@ int FaceModel::GetOneModel(unsigned char* rawImage,
 				srand((unsigned)time(NULL));
 				int randomName = rand() % 100 + 1;
 				string pathImage = nameDirectory + "/" + to_string(randomName) + ".png";
-				cout << "PATH IMAGE .." << pathImage << endl;
+				cout << "GREATER OR EQUAL ACCURACY .." << configuration->GetPrecision() << endl;
 				std::thread(&FaceModel::FaceCropImage, this,
 					faceTemp, pathImage).detach();
 				CreateTemplate(faceTemp, pathImage, client);

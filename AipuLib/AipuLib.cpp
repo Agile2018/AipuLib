@@ -72,7 +72,7 @@ void AipuLib::SetIsRegister(bool option) {
 }
 
 string AipuLib::GetUserJSON() {
-	cout << "PROPERTY AIPU: " << userJson << endl;
+	//cout << "PROPERTY AIPU: " << userJson << endl;
 	return userJson;
 }
 
@@ -94,7 +94,17 @@ void AipuLib::RecognitionFace(unsigned char* image, int rows, int cols, int clie
 	management->RecognitionFace(image, rows, cols, client);
 }
 
-void AipuLib::Terminate() {
+void AipuLib::Terminate(int option) {
 	innovatrics->Terminate();
-	management->Destroy();
+	if (option == 0)
+	{
+		management->Destroy();
+	}
+	
+}
+
+void AipuLib::Reset() {
+	innovatrics->SetParamsLibrary();
+	innovatrics->InitLibrary();
+	management->ReloadFaceModel();
 }

@@ -47,7 +47,7 @@ private:
 	const string FRAMEXSECONDS = "fps";
 	const string IMAGETEMP = "imagetemp";
 	const string NAMEWINDOW = "namewindow";
-	const string PARAMS = "params";
+	const string PARAMS = "Params";
 	const string CONFIGURATION = "configuration";
 	const string VIDEO_CONFIGURATION = "video_configuration";
 	const string HTTP = "http://";

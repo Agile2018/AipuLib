@@ -153,6 +153,10 @@ public:
 		delete database;
 	}
 
+	void ReloadFaceModel() {
+		faceModel->configuration->ParseJSONToObject();		
+	}
+
 	Rx::subject<Either*> errorSubject;
 	Rx::observable<Either*> observableError = errorSubject.get_observable();
 

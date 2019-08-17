@@ -57,7 +57,7 @@ private:
 	int maxEyeDistance = MAX_EYE_DISTANCE;
 	int maxDetect = MAX_DETECT;
 	int accuracy = ACCURACY;
-	const string PARAMS = "params";
+	const string PARAMS = "Params";
 	const string MAXFACES = "maxfaces";
 	const string MINEYE = "mineye";
 	const string MAXEYE = "maxeye";

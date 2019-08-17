@@ -67,7 +67,7 @@ private:
 	string nameFileConfiguration;
 	string nameDirectoryConfiguration;
 	string nameFileConfigurationDatabase;
-	const string PARAMS = "params";
+	const string PARAMS = "Params";
 	const string FILEVIDEO = "file_video";
 	const string FILEFACE = "file_face";
 	const string FILEDATABASE = "file_database";

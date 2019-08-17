@@ -35,7 +35,7 @@ private:
 	Rx::subscriber<Either*> shootError = errorSubject.get_subscriber();
 	const string NAME_DATABASE = "name";
 	const string CONNECT_STRING = "connect";
-	const string PARAMS = "params";
+	const string PARAMS = "Params";
 	const string CONFIGURATION = "configuration";
 	const string DATABASE_CONFIGURATION = "database_configuration";
 	string nameDatabase;

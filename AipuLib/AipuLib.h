@@ -26,8 +26,8 @@ public:
 	void SetWorkMode(int mode);
 	int GetWorkMode();
 	void RecognitionFace(unsigned char* image, int rows, int cols, int client);
-	void Terminate();
-	
+	void Terminate(int option);
+	void Reset();
 private:	
 	
 	void ObserverError();
