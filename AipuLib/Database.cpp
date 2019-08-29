@@ -54,8 +54,8 @@ void Database::AddUser(User* user) {
 	bsoncxx::document::value builder = make_document(
 		kvp("id_face", user->GetUserIdIFace()),
 		kvp("name", user->GetNameUser().c_str()),
-		kvp("address", user->GetAddressUser().c_str()));
-
+		kvp("lastname", user->GetLastNameUser().c_str()),
+		kvp("identification", user->GetIdentificationUser().c_str()));
 	try
 	{
 		bsoncxx::stdx::optional<mongocxx::result::insert_one> result = collection.insert_one(std::move(builder));
@@ -78,7 +78,8 @@ void Database::AddImageUser(string pathImage, int idUser) {
 	string imageBase64 = FileImageToStringBase64(pathImage);	
 	bsoncxx::document::value builder = make_document(
 		kvp("id_face", idUser),
-		kvp("data_64", imageBase64.c_str()));
+		kvp("data_64", imageBase64.c_str()),
+		kvp("data_64_aux", "empty"));
 	try
 	{
 	
@@ -99,7 +100,8 @@ void Database::BuildNewUser(User* user) {
 	std::vector<std::string> values;
 	values.push_back(to_string(idFace));
 	values.push_back(user->GetNameUser());
-	values.push_back(user->GetAddressUser());
+	values.push_back(user->GetLastNameUser());
+	values.push_back(user->GetIdentificationUser());
 	values.push_back("1");
 	values.push_back(to_string(client));
 	BuildJSONUser(values);
@@ -159,7 +161,7 @@ void Database::ObserverError() {
 
 void Database::FindUserByIdFace(int idFaceUser, string pathFileCropImage, int client) {
 	std::thread(&Database::QueryUserByFace, this, idFaceUser, client).detach();
-	std::thread(&Database::DeleteFileTempCropImage, this, pathFileCropImage).detach();
+	std::thread(&Database::UpdateImageUser, this, idFaceUser, pathFileCropImage).detach();
 }
 
 void Database::QueryUserByFace(int idFaceUser, int client) {
@@ -177,7 +179,8 @@ void Database::QueryUserByFace(int idFaceUser, int client) {
 		std::vector<std::string> values;
 		values.push_back(to_string(idFace));
 		values.push_back(view["name"].get_utf8().value.to_string());
-		values.push_back(view["address"].get_utf8().value.to_string());
+		values.push_back(view["lastname"].get_utf8().value.to_string());
+		values.push_back(view["identification"].get_utf8().value.to_string());
 		values.push_back("0");
 		values.push_back(to_string(client));
 		BuildJSONUser(values);
@@ -185,6 +188,26 @@ void Database::QueryUserByFace(int idFaceUser, int client) {
 	}
 
 }
+
+void Database::UpdateImageUser(int idFaceUser, string pathFileCropImage) {
+	auto clientConnection = MongoAccess::instance().GetConnection();
+	mongocxx::database database = (*clientConnection)[configuration->GetNameDatabase().c_str()];
+	mongocxx::collection collection = database[COLLECTION_IMAGE.c_str()];
+	string imageBase64 = FileImageToStringBase64(pathFileCropImage);
+	try
+	{
+
+		bsoncxx::stdx::optional<mongocxx::v_noabi::result::update> result = collection
+			.update_one(make_document(kvp("id_face", idFaceUser)),
+				make_document(kvp("$set", make_document(kvp("data_64_aux", imageBase64)))));
+	}
+	catch (const mongocxx::exception& e)
+	{
+		error->CheckError(ERROR_DATABASE,
+			error->medium, e.what());
+	}
+}
+
 
 void Database::BuildJSONUser(vector<std::string> values) {
 	string stringJSON;
@@ -194,9 +217,10 @@ void Database::BuildJSONUser(vector<std::string> values) {
 	std::map<std::string, std::string> params;
 	params.insert(std::pair<std::string, std::string>(FIELD_USER_ID_FACE, values[0]));
 	params.insert(std::pair<std::string, std::string>(FIELD_USER_NAME, values[1]));
-	params.insert(std::pair<std::string, std::string>(FIELD_USER_ADDRESS, values[2]));
-	params.insert(std::pair<std::string, std::string>(FIELD_USER_REGISTER, values[3]));
-	params.insert(std::pair<std::string, std::string>(FIELD_CLIENT, values[4]));
+	params.insert(std::pair<std::string, std::string>(FIELD_USER_LAST_NAME, values[2]));
+	params.insert(std::pair<std::string, std::string>(FIELD_USER_IDENTIFICATION, values[3]));
+	params.insert(std::pair<std::string, std::string>(FIELD_USER_REGISTER, values[4]));
+	params.insert(std::pair<std::string, std::string>(FIELD_CLIENT, values[5]));
 	std::map<std::string, std::string>::const_iterator it = params.begin(),
 		end = params.end();
 	for (; it != end; ++it) {

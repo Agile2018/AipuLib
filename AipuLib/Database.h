@@ -49,7 +49,8 @@ private:
 	const string FIELD_USER_ID_FACE = "id_face";
 	const string FIELD_USER_ID = "_id";
 	const string FIELD_USER_NAME = "name";
-	const string FIELD_USER_ADDRESS = "address";
+	const string FIELD_USER_LAST_NAME = "lastname";
+	const string FIELD_USER_IDENTIFICATION = "identification";
 	const string FIELD_USER_REGISTER = "register";
 	const string FIELD_CLIENT = "client";
 	const string FORMAT_IMAGE_64 = "data:image/jpeg;base64,";
@@ -72,6 +73,7 @@ private:
 	string QueryImageOfUser(int idFaceUser);
 	string FileImageToStringBase64(string path);
 	void DeleteFileTempCropImage(string filePath);
+	void UpdateImageUser(int idFaceUser, string pathFileCropImage);
 };
 
 

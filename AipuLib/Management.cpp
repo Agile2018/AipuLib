@@ -30,8 +30,13 @@ void Management::ObserverIdentifyFace() {
 		
 		if (user->GetIsNew())
 		{			
-			user->SetNameUser("empty");
-			user->SetAddressUser("empty");
+			string number = to_string(user->GetUserIdIFace());
+			string name = "Person " + number;
+			string lastName = "LasName " + number;
+			string identification = "0000000";
+			user->SetNameUser(name);
+			user->SetLastNameUser(lastName);
+			user->SetIdentificationUser(identification);
 			database->InsertNewUser(user);
 		}
 		else {

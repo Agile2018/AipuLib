@@ -26,8 +26,8 @@ public:
 		nameUser = name;
 	}
 
-	void SetAddressUser(string address) {
-		addressUser = address;
+	void SetLastNameUser(string lastName) {
+		lastNameUser = lastName;
 	}
 	string GetIdDb() {
 		return idDb;
@@ -40,8 +40,8 @@ public:
 		return nameUser;
 	}
 
-	string GetAddressUser() {
-		return addressUser;
+	string GetLastNameUser() {
+		return lastNameUser;
 	}
 
 	void SetPathImageTemp(string path) {
@@ -67,11 +67,20 @@ public:
 		return client;
 	}
 
+	void SetIdentificationUser(string identification) {
+		identificationUser = identification;
+	}
+
+	string GetIdentificationUser() {
+		return identificationUser;
+	}
+
 private:
 	string idDb;
 	int userIdIFace;	
 	string nameUser;
-	string addressUser;
+	string lastNameUser;
+	string identificationUser;
 	string pathImageTemp;
 	bool isNew = false;
 	int client;
