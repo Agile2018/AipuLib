@@ -50,7 +50,7 @@ void Database::AddUser(User* user) {
 	mongocxx::collection collection = database[COLLECTION_USER.c_str()];
 	
 	lastUserId = user->GetUserIdIFace();
-
+	lastClient = user->GetClient();
 	bsoncxx::document::value builder = make_document(
 		kvp("id_face", user->GetUserIdIFace()),
 		kvp("name", user->GetNameUser().c_str()),
@@ -165,12 +165,13 @@ void Database::FindUserByIdFace(int idFaceUser, string pathFileCropImage, int cl
 }
 
 void Database::QueryUserByFace(int idFaceUser, int client) {
-	if (lastUserId != idFaceUser)
+	if (lastUserId != idFaceUser || lastClient != client)
 	{
 		auto clientConnection = MongoAccess::instance().GetConnection();
 		mongocxx::database database = (*clientConnection)[configuration->GetNameDatabase().c_str()];
 		mongocxx::collection collection = database[COLLECTION_USER.c_str()];
 		lastUserId = idFaceUser;	
+		lastClient = client;
 		boost::optional<bsoncxx::v_noabi::document::value> cursor = collection
 			.find_one(make_document(kvp("id_face", idFaceUser)));
 		
