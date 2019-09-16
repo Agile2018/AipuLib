@@ -41,6 +41,16 @@ vector<uchar> Video::WriteImageOnBuffer(Mat frame) {
 
 }
 
+vector<uchar> Video::WriteImagePngOnBuffer(Mat frame) {
+	vector<uchar> bufferImage;
+	int params[3] = { 0 };
+	params[0] = IMWRITE_PNG_COMPRESSION;
+	params[1] = 1;
+	bool code = cv::imencode(".png", frame,
+		bufferImage, std::vector<int>(params, params + 2));
+	return bufferImage;
+
+}
 
 void Video::WriteBatchOfImagesOnBuffer(Mat frame, int client) //Mat frame 
 {

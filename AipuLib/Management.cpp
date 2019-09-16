@@ -8,6 +8,7 @@ Management::Management()
 	ObserverTemplateImage();
 	ObserverIdentifyFace();
 	ObserverDatabase();
+	ObserverCoordinatesFace();
 }
 
 Management::~Management()
@@ -70,6 +71,17 @@ void Management::ObserverTemplateImage()
 		identify->EnrollUser(modelImage);
 	});
 	
+}
+
+void Management::ObserverCoordinatesFace() {
+	auto CoordinatesObservable = faceModel->observableCoordinates.map([](float coordinates[]) {
+		return coordinates;
+	});
+
+	auto subscriptionCoordinates = CoordinatesObservable.subscribe([this](float coordinates[]) {
+		shootCoordinates.on_next(coordinates);
+
+	});
 }
 
 void Management::ObserverError() {
@@ -259,12 +271,64 @@ void Management::RecognitionFace(unsigned char* image,
 	}
 }
 
+
+
+void Management::RecognitionFastFace(unsigned char* image,
+	int rows, int cols) {
+	if (!flagFastNextFrame) {
+		flagFastNextFrame = true;
+		Mat matImage = ByteToMat(image, rows, cols);
+		std::thread sqf(&Management::ProcessFastImage, this, matImage);
+		sqf.detach();
+	}
+		
+}
+void Management::ProcessFastImage(Mat image) {
+	vector<uchar> buffer = video->WriteImageOnBuffer(image);
+	faceModel->FastOnlyDetect(buffer);
+	buffer.clear();
+	flagFastNextFrame = false;
+}
+
+void Management::InitTracking(unsigned char* image,
+	int rows, int cols) {
+	Mat matImage = ByteToMat(image, rows, cols);
+	ProcessInitTracking(matImage, rows, cols);
+}
+
+
+
+void Management::ProcessInitTracking(Mat image, int rows, int cols) {
+	vector<uchar> buffer = video->WriteImagePngOnBuffer(image);
+	faceModel->InitTracking(buffer, cols, rows);
+	buffer.clear();
+}
+
+void Management::Tracking(unsigned char* image,
+	int rows, int cols) {
+	if (!flagFastNextFrame) {
+		flagFastNextFrame = true;
+		Mat matImage = ByteToMat(image, rows, cols);
+		std::thread sqt(&Management::ProcessTracking, this, 
+			matImage, rows, cols);
+		sqt.detach();
+	}
+	
+}
+
+void Management::ProcessTracking(Mat image, int rows, int cols) {
+	vector<uchar> buffer = video->WriteImageOnBuffer(image);
+	faceModel->Tracking(buffer, cols, rows);
+	buffer.clear();
+	flagFastNextFrame = false;
+}
+
 Mat Management::ByteToMat(unsigned char* image, int rows, int cols) {
 	Mat matImage = Mat(rows, cols, CV_8UC3);
 	matImage.data = image;
 	Mat reverseImage;
 	bitwise_not(matImage, reverseImage);
-	//imwrite("147215.png", reverseImage);
+	//imwrite("666.png", reverseImage);
 	return reverseImage;
 }
 

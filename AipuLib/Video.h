@@ -15,6 +15,7 @@ public:
 	~Video();
 	
 	vector<uchar> WriteImageOnBuffer(Mat frame);
+	vector<uchar> WriteImagePngOnBuffer(Mat frame);
 	
 	void WriteBatchOfImagesOnBuffer(Mat frame, int client);
 	void SetNameDirectory(string name) {

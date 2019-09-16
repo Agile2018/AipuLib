@@ -49,6 +49,10 @@ public:
 		database->configuration->SetConnectString(connect);
 	}
 
+	void ResetIdUser() {
+		database->ResetIdUser();
+	}
+
 	void SaveConfigurationDatabase(string nameFile) {
 		database->configuration->SetNameFileConfiguration(nameFile);
 		database->configuration->ParseMapToJSON();
@@ -140,8 +144,34 @@ public:
 		return workMode;
 	}
 
+	bool GetStateProccessRecognition() {
+		return flagNextFrame;
+	}
+
 	void RecognitionFace(unsigned char* image, 
 		int rows, int cols, int client);
+
+	void RecognitionFastFace(unsigned char* image,
+		int rows, int cols);
+
+	void InitTracking(unsigned char* image,
+		int rows, int cols);
+
+	void Tracking(unsigned char* image,
+		int rows, int cols);
+
+	void SetSequenceFps(int fps) {
+		faceModel->SetSequenceFps(fps);
+	}
+
+	void ResfreshBetweenFrame(int refresh) {
+		faceModel->ResfreshBetweenFrame(refresh);
+	}
+
+	void TerminateTracking() {
+		faceModel->TerminateTracking();
+	}
+
 	void Destroy() {
 		delete configurationFile;
 		delete faceModel;
@@ -163,10 +193,13 @@ public:
 	Rx::subject<string> userDetected;
 	Rx::observable<string> observableUserJSON = userDetected.get_observable();
 
+	Rx::subject<float*> subjectCoordinates;
+	Rx::observable<float*> observableCoordinates = subjectCoordinates.get_observable();
 
 private:	
 	Rx::subscriber<Either*> shootError = errorSubject.get_subscriber();	
 	Rx::subscriber<string> shootUserJSON = userDetected.get_subscriber();
+	Rx::subscriber<float*> shootCoordinates = subjectCoordinates.get_subscriber();
 	ConfigurationFile* configurationFile = new ConfigurationFile();
 	FaceModel* faceModel = new FaceModel();
 	Video* video = new Video();
@@ -179,6 +212,7 @@ private:
 	int countImagesDetected = 0;
 	int workMode = SINGLE;
 	bool flagNextFrame = false;
+	bool flagFastNextFrame = false;
 	double timeDurationSingleDetection = 0;
 	void SetDirectoryConfiguration();
 	void ObserverError();
@@ -191,6 +225,7 @@ private:
 	void ObserverTemplateImage();
 	void ObserverIdentifyFace();
 	void ObserverDatabase();
+	void ObserverCoordinatesFace();
 	/*void SetNameFileConfigurationVideo(string name) {
 		video->configuration->SetNameFileConfiguration(name);
 		video->configuration->ParseJSONToObject();
@@ -210,7 +245,9 @@ private:
 	}
 
 	void ProcessImage(Mat image, int client);
-	
+	void ProcessFastImage(Mat image);
+	void ProcessInitTracking(Mat image, int rows, int cols);
+	void ProcessTracking(Mat image, int rows, int cols);
 };
 
 #endif // !Management_h

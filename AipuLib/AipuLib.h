@@ -21,16 +21,24 @@ public:
 	
 	string GetUserJSON();
 	string GetMessageError();
+	float* GetCoordinates();
 	void SetIsRegister(bool option);
-	
+	bool GetStateProccessRecognition();
+	void ResetIdUser();
 	void SetWorkMode(int mode);
 	int GetWorkMode();
 	void RecognitionFace(unsigned char* image, int rows, int cols, int client);
+	void RecognitionFastFace(unsigned char* image, int rows, int cols);
+	void InitTracking(unsigned char* image, int rows, int cols);
+	void Tracking(unsigned char* image, int rows, int cols);
 	void Terminate(int option);
 	void Reset();
+	void SetSequenceFps(int fps);
+	void ResfreshBetweenFrame(int refresh);
+	void TerminateTracking();
 private:	
 	
-	void ObserverError();
+	void ObserverEvent();
 
 };
 

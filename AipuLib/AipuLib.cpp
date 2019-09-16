@@ -10,7 +10,7 @@ Management* management;
 Innovatrics* innovatrics;
 string userJson;
 string messageError;
-
+float cropRect[4];
 
 AipuLib::AipuLib()
 {	
@@ -23,7 +23,7 @@ AipuLib::~AipuLib()
 {
 }
 
-void AipuLib::ObserverError() {
+void AipuLib::ObserverEvent() {
 	
 
 	auto observerErrorManagement = management->observableError.map([](Either* either) {
@@ -45,6 +45,24 @@ void AipuLib::ObserverError() {
 		userJson = jsonUser;	
 		cout << "USER AIPU: " << userJson << endl;
 	});
+
+	auto CoordinatesObservable = management->observableCoordinates.map([](float coordinates[]) {
+		return coordinates;
+	});
+
+	auto subscriptionCoordinates = CoordinatesObservable.subscribe([this](float coordinates[]) {
+		cropRect[0] = coordinates[0];
+		cropRect[1] = coordinates[1];
+		cropRect[2] = coordinates[2];
+		cropRect[3] = coordinates[3];
+		/*cropRect[4] = coordinates[4];
+		cropRect[5] = coordinates[5];
+		cropRect[6] = coordinates[6];
+		cropRect[7] = coordinates[7];*/
+		
+		/*std::copy(std::begin(cropRect), std::end(cropRect), 
+			std::ostream_iterator<float>(std::cout, " "));*/
+	});
 }
 
 void AipuLib::InitLibrary() {
@@ -60,7 +78,7 @@ void AipuLib::InitLibrary() {
 	innovatrics->SetParamsLibrary();
 	innovatrics->InitLibrary();
 	management = new Management();
-	ObserverError();
+	ObserverEvent();
 }
 
 void AipuLib::LoadConfiguration(string nameFile) {
@@ -81,6 +99,9 @@ string AipuLib::GetMessageError() {
 	return messageError;
 }
 
+float* AipuLib::GetCoordinates() {
+	return cropRect;
+}
 
 void AipuLib::SetWorkMode(int mode) {
 	management->SetWorkMode(mode);
@@ -94,8 +115,21 @@ void AipuLib::RecognitionFace(unsigned char* image, int rows, int cols, int clie
 	management->RecognitionFace(image, rows, cols, client);
 }
 
+void AipuLib::RecognitionFastFace(unsigned char* image, int rows, int cols) {
+	management->RecognitionFastFace(image, rows, cols);
+}
+
+void AipuLib::InitTracking(unsigned char* image, int rows, int cols) {
+	management->InitTracking(image, rows, cols);
+}
+
+void AipuLib::Tracking(unsigned char* image, int rows, int cols) {
+	management->Tracking(image, rows, cols);
+}
+
 void AipuLib::Terminate(int option) {
 	innovatrics->Terminate();
+
 	if (option == 0)
 	{
 		management->Destroy();
@@ -107,4 +141,24 @@ void AipuLib::Reset() {
 	innovatrics->SetParamsLibrary();
 	innovatrics->InitLibrary();
 	management->ReloadFaceModel();
+}
+
+void AipuLib::SetSequenceFps(int fps) {
+	management->SetSequenceFps(fps);
+}
+
+void AipuLib::ResfreshBetweenFrame(int refresh) {
+	management->ResfreshBetweenFrame(refresh);
+}
+
+void AipuLib::TerminateTracking() {
+	management->TerminateTracking();
+}
+
+bool AipuLib::GetStateProccessRecognition() {
+	return management->GetStateProccessRecognition();
+}
+
+void AipuLib::ResetIdUser() {
+	management->ResetIdUser();
 }
