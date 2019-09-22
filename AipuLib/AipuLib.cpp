@@ -162,3 +162,7 @@ bool AipuLib::GetStateProccessRecognition() {
 void AipuLib::ResetIdUser() {
 	management->ResetIdUser();
 }
+
+void AipuLib::SetConfigurationDatabase() {
+	management->SetConfigurationDatabase();
+}

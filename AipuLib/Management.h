@@ -42,6 +42,11 @@ public:
 		SetNameFileConfigurationDatabase(configurationFile->GetNameFileConfigurationDatabase());		
 		database->Configure();
 	}
+
+	void SetConfigurationDatabase() {
+		database->configuration->ParseJSONToObject();
+		//database->Configure();
+	}
 	void SetNameDatabase(string name) {
 		database->configuration->SetNameDatabase(name);
 	}

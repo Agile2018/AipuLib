@@ -35,6 +35,7 @@ public:
 	void Reset();
 	void SetSequenceFps(int fps);
 	void ResfreshBetweenFrame(int refresh);
+	void SetConfigurationDatabase();
 	void TerminateTracking();
 private:	
 	
