@@ -3,8 +3,9 @@
 
 #include "ErrorFaceLib.h"
 #include "iface.h"
-#include "idkit.h"
+//#include "idkit.h"
 #include "GraphicProcessor.h"
+#include "AFaceAPI.h"
 
 class Innovatrics
 {

@@ -35,6 +35,12 @@ void Innovatrics::InitLibrary() {
 	if (errorCode != IFACE_OK) {		
 		error->CheckError(errorCode, error->gross);
 	}	
+	auto initData = "{\"licenseFile\":\"iengine.lic\",\"minEyeDistance\":30,\"maxEyeDistance\":250,\"globalCPUEnabled\":true}";
+	errorCode = initLibrary(initData);
+	if (errorCode != IFACE_OK) {
+		error->CheckError(errorCode, error->gross);
+	}
+	cout << "initLibrary returns " << errorCode << endl;
 	
 }
 
@@ -78,6 +84,11 @@ void Innovatrics::Terminate() {
 	int errorCode;
 
 	errorCode = IFACE_Terminate();
+	if (errorCode != IFACE_OK) {
+		error->CheckError(errorCode, error->gross);
+	}
+
+	errorCode = endLibrary();
 	if (errorCode != IFACE_OK) {
 		error->CheckError(errorCode, error->gross);
 	}

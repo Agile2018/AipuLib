@@ -307,6 +307,7 @@ void Management::ProcessInitTracking(Mat image, int rows, int cols) {
 void Management::Tracking(unsigned char* image,
 	int rows, int cols) {
 	if (!flagFastNextFrame) {
+		
 		flagFastNextFrame = true;
 		Mat matImage = ByteToMat(image, rows, cols);
 		std::thread sqt(&Management::ProcessTracking, this, 

@@ -4,7 +4,9 @@
 #define BATCH_SIZE	5
 #define BATCH_TOTAL_SIZE 30
 #define EMPTY_FACE	0
-#define TRACKED_OBJECTS	7
+#define TRACKED_OBJECTS	5
+#define SIZE_COORDINATES 20
+#define NUMBER_COORDINATES_IMAGES  4
 
 //#include "iface.h"
 #include "ConfigurationIFace.h"
@@ -57,16 +59,18 @@ private:
 	Rx::subscriber<Molded*> templateOut = templateImage.get_subscriber();
 	std::vector<string> pathCropImages;
 	std::vector<int> clientsId;
+	
+	float imageCoordinatesFollowed[SIZE_COORDINATES];
+
 	string nameFileImage;
 	string nameDirectory;	
 	int sequenceFps = 30;
 	int timeDeltaMs = 1000 / sequenceFps;
-	int refreshInterval = 200; // time interval (in ms) between frames where refresh of face detect will be done
-	int faceConfThresh = 600;
+	int refreshInterval = 2000; // time interval (in ms) between frames where refresh of face detect will be done	
 	void* faceHandlerTracking;
 	void* objectHandler;
 	void* objects[TRACKED_OBJECTS];
-	void* faceTracking;
+	//void* faceTracking;
 	//vector<void *> allTrackedObjects;
 	int countFrameTracking = 0;
 	void FaceCropImage(void* face, string pathImage);	
@@ -80,7 +84,11 @@ private:
 	void GetFaceCropRectangle(void* face);	
 	unsigned char* LoadImage(vector<unsigned char> buffer);
 	unsigned char* LoadFileImage(string image, int *width, int *height, int *length);
-	void BuildCoordinates(float x, float y, float width, float height);
+	void BuildCoordinates(float x, float y, float width, float height, int indexTracked);
+	/*int SearchId(int idTracked);
+	void DeleteId(int idTracked);
+	void SuspendIndex(int idTracked);*/
+	void ClearCoordinatesImage(int indexTracked);
 };
 
 

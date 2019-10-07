@@ -12,6 +12,7 @@ public:
 	~ConfigurationFile();
 	void ParseJSONToObject();
 	void ParseMapToJSON();
+	
 	void SetNameFileConfigurationVideo(string name) {
 		nameFileConfigurationVideo = name;
 	}
@@ -52,6 +53,14 @@ public:
 		return nameFileConfigurationDatabase;
 	}
 
+	void SetNameFileConfigurationIdentify(string name) {
+		nameFileConfigurationIdentify = name;
+	}
+
+	string GetNameFileConfigurationIdentify() {
+		return nameFileConfigurationIdentify;
+	}
+
 	Rx::subject<Either*> errorSubject;
 	Rx::observable<Either*> observableError = errorSubject.get_observable();
 
@@ -62,6 +71,7 @@ private:
 	void SetValueJSONToConfiguration();
 	string nameFileConfigurationVideo;
 	string nameFileConfigurationFaceModel;
+	string nameFileConfigurationIdentify;
 	string nameDirectoryTempWork;
 	string nameDirectoryTraining;
 	string nameFileConfiguration;
@@ -75,6 +85,7 @@ private:
 	const string DIRECTORYTRAIN = "directory_train";
 	const string CONFIGURATION = "configuration";
 	const string FILE_CONFIGURATION = "files_configuration";
+	const string FILEIDENTIFY = "file_identify";
 };
 
 

@@ -11,7 +11,8 @@ public:
 	ConfigurationIFace();
 	~ConfigurationIFace();
 	void ParseJSONToObject();
-	void ParseMapToJSON();	
+	void ParseMapToJSON();		
+	
 	void SetMinEyeDistance(int minDistance) {
 		minEyeDistance = minDistance;
 	}
@@ -26,6 +27,18 @@ public:
 	void SetPrecision(int precision) {
 		accuracy = precision;
 	}
+
+	void SetModeDetect(int mode) {
+		modeDetect = mode;
+	}
+
+	/*void SetIdentificationSpeed(int speed) {
+		identificationSpeed = speed;
+	}
+
+	void SetFaceDetectionForced(int forced) {
+		faceDetectionForced = forced;
+	}*/
 
 	int GetMinEyeDistance() {
 		return minEyeDistance;
@@ -43,6 +56,18 @@ public:
 		return accuracy;
 	}
 
+	int GetModeDetect() {
+		return modeDetect;
+	}
+
+	/*int GetIdentificationSpeed() {
+		return identificationSpeed;
+	}
+
+	int GetFaceDetectionForced() {
+		return faceDetectionForced;
+	}
+*/
 	Rx::subject<Either*> errorSubject;
 	Rx::observable<Either*> observableError = errorSubject.get_observable();
 private:
@@ -50,6 +75,9 @@ private:
 	const int MIN_EYE_DISTANCE = 25;
 	const int MAX_EYE_DISTANCE = 200;
 	const int ACCURACY = 600;
+	const int MODE_DETECT = 1;
+	/*const int IDENTIFICATION_SPEED = 5; 
+	const int FACE_DETECTION_FORCED = 2;*/
 
 	Rx::subscriber<Either*> shootError = errorSubject.get_subscriber();
 	ErrorFaceLib* error = new ErrorFaceLib();
@@ -57,13 +85,22 @@ private:
 	int maxEyeDistance = MAX_EYE_DISTANCE;
 	int maxDetect = MAX_DETECT;
 	int accuracy = ACCURACY;
+	int modeDetect = MODE_DETECT;
+	/*int identificationSpeed = IDENTIFICATION_SPEED;
+	int faceDetectionForced = FACE_DETECTION_FORCED;*/
 	const string PARAMS = "Params";
 	const string MAXFACES = "maxfaces";
 	const string MINEYE = "mineye";
 	const string MAXEYE = "maxeye";
 	const string PRECISION= "accuracy";
-	const string CONFIGURATION = "configuration";
+	const string MODEDETECT = "modedetect";
+	/*const string IDENTIFICATIONSPEED = "A_IdentificationSpeed";
+	const string FACEDETECTIONFORCED = "A_FaceDetectionForced";*/
+	const string CONFIGURATION = "configuration";	
 	const string DETECT_CONFIGURATION = "detect_configuration";
+	/*const string AMINEYE = "A_MinEyeDist";
+	const string AMAXEYE = "A_MaxEyeDist";*/
+
 	void SetValueJSONToConfiguration();
 	void ObserverError();
 };

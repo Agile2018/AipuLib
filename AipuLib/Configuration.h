@@ -29,10 +29,10 @@ public:
 		return manageFile->GetNameDirectory();
 	}
 	virtual void ParseJSONToObject() {};
-	virtual void ParseMapToJSON() {};
+	virtual void ParseMapToJSON() {};	
 
 protected:
-	string stringJSON;
+	string stringJSON;	
 	Json::Value jsonParams;
 	Json::Value jsonBody;
 	Json::Reader reader;
@@ -44,6 +44,8 @@ protected:
 		stringJSON = Json::writeString(builder, jsonBody);
 
 	}
+	
+
 	void SaveConfiguration() {
 		if (manageFile->DeleteFile()) {};
 		WriteJSONToString();				

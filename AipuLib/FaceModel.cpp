@@ -32,8 +32,8 @@ void FaceModel::ObserverError() {
 }
 
 void FaceModel::Terminate() {
-	int errorCode;
-	//TerminateTracking();
+	int errorCode;	
+	
 	errorCode = IFACE_Terminate();
 	error->CheckError(errorCode, error->less);
 
@@ -58,16 +58,21 @@ void FaceModel::TerminateTracking() {
 		}		
 		
 	}
-
-	errorCode = IFACE_ReleaseEntity(faceTracking);
-	error->CheckError(errorCode, error->medium);
+	/*for (size_t i = 0; i < allTrackedObjects.size(); i++)
+	{
+		errorCode = IFACE_ReleaseEntity(allTrackedObjects[i]);
+		error->CheckError(errorCode, error->less);
+	}
+	allTrackedObjects.clear();*/
+	/*errorCode = IFACE_ReleaseEntity(faceTracking);
+	error->CheckError(errorCode, error->medium);*/
 
 	errorCode = IFACE_ReleaseEntity(objectHandler);
 	error->CheckError(errorCode, error->less);
 
 	errorCode = IFACE_ReleaseEntity(faceHandlerTracking);
 	error->CheckError(errorCode, error->less);
-
+	//coordinatesIdUser.clear();
 }
 
 int FaceModel::DetectByBatch(void* facesDetected[BATCH_TOTAL_SIZE],
@@ -80,11 +85,22 @@ int FaceModel::DetectByBatch(void* facesDetected[BATCH_TOTAL_SIZE],
 	errorCode = IFACE_CreateFaceHandler(&faceHandler);
 	error->CheckError(errorCode, error->medium);
 
-	errorCode = IFACE_SetParam(faceHandler,
-		IFACE_PARAMETER_FACEDET_SPEED_ACCURACY_MODE,
-		IFACE_FACEDET_SPEED_ACCURACY_MODE_BALANCED);
-	error->CheckError(errorCode, error->medium);
-
+	if (configuration->GetModeDetect() == 1)
+	{
+		errorCode = IFACE_SetParam(faceHandler,
+			IFACE_PARAMETER_FACEDET_SPEED_ACCURACY_MODE,
+			IFACE_FACEDET_SPEED_ACCURACY_MODE_BALANCED);
+		error->CheckError(errorCode, error->medium);
+	}
+	if (configuration->GetModeDetect() == 2)
+	{
+		errorCode = IFACE_SetParam(faceHandler,
+			IFACE_PARAMETER_FACEDET_SPEED_ACCURACY_MODE,
+			IFACE_FACEDET_SPEED_ACCURACY_MODE_FAST);
+		error->CheckError(errorCode, error->medium);
+	}
+	
+	
 	for (int i = 0; i < BATCH_TOTAL_SIZE; i++)
 	{
 
@@ -354,8 +370,7 @@ void FaceModel::FastOnlyDetect(vector<unsigned char> buffer) {
 }
 
 void FaceModel::InitTracking(vector<unsigned char> buffer, int width, int height) {
-	int errorCode;	
-	faceConfThresh = configuration->GetPrecision();
+	int errorCode;		
 	
 	unsigned char* maskImage = LoadImage(buffer);
 	
@@ -363,8 +378,8 @@ void FaceModel::InitTracking(vector<unsigned char> buffer, int width, int height
 	error->CheckError(errorCode, error->medium);
 	errorCode = IFACE_CreateObjectHandler(&objectHandler, faceHandlerTracking);
 	error->CheckError(errorCode, error->medium);
-	errorCode = IFACE_CreateFace(&faceTracking);
-	error->CheckError(errorCode, error->medium);
+	/*errorCode = IFACE_CreateFace(&faceTracking);
+	error->CheckError(errorCode, error->medium);*/
 	for (int i = 0; i < TRACKED_OBJECTS; i++)
 	{
 		errorCode = IFACE_CreateObject(&objects[i]);
@@ -383,131 +398,184 @@ void FaceModel::InitTracking(vector<unsigned char> buffer, int width, int height
 		IFACE_PARAMETER_TRACK_MAX_EYE_DISTANCE, 
 		std::to_string(configuration->GetMaxEyeDistance()).c_str());
 	error->CheckError(errorCode, error->medium);
+	
+	errorCode = IFACE_SetParam(objectHandler,
+		IFACE_PARAMETER_TRACK_TRACKING_MODE,
+		IFACE_TRACK_TRACKING_MODE_OBJECT_TRACKING);
+	error->CheckError(errorCode, error->medium);
+
+	errorCode = IFACE_SetParam(objectHandler,
+		IFACE_PARAMETER_TRACK_SPEED_ACCURACY_MODE,
+		IFACE_TRACK_SPEED_ACCURACY_MODE_BALANCED);
+	error->CheckError(errorCode, error->medium);
+
+	errorCode = IFACE_SetParam(objectHandler,
+		IFACE_PARAMETER_TRACK_MOTION_OPTIMIZATION,
+		IFACE_TRACK_MOTION_OPTIMIZATION_HISTORY_LONG_FAST);
+	error->CheckError(errorCode, error->medium);
+
+	errorCode = IFACE_SetParam(objectHandler,
+		IFACE_PARAMETER_TRACK_DEEP_TRACK,
+		IFACE_TRACK_DEEP_TRACK_DEFAULT);
+	error->CheckError(errorCode, error->medium);
+
 	errorCode = IFACE_SetParam(faceHandlerTracking, 
 		IFACE_PARAMETER_FACEDET_CONFIDENCE_THRESHOLD, 
-		std::to_string(faceConfThresh).c_str());
+		std::to_string(configuration->GetPrecision()).c_str());
 	error->CheckError(errorCode, error->medium);
 	
 	errorCode = IFACE_SetTrackingAreaMask(objectHandler, 
 		maskImage, width, height);	
 	error->CheckError(errorCode, error->medium);	
 	delete[] maskImage;
+	
 }
 
-void FaceModel::Tracking(vector<unsigned char> buffer, int width, int height) {	
-	int errorCode;		
-	float cropEmptyRect[4];
-	clock_t timeStart = clock();
-	int durationMs = 0;
-	clock_t duration;
+void FaceModel::Tracking(vector<unsigned char> buffer, int width, int height) {
+	int errorCode;
 	unsigned char* rawImage = LoadImage(buffer);
-		
-	errorCode = IFACE_TrackObjects(objectHandler, rawImage, 
+
+
+	errorCode = IFACE_TrackObjects(objectHandler, rawImage,
 		width, height, countFrameTracking*timeDeltaMs, TRACKED_OBJECTS, objects);
 	error->CheckError(errorCode, error->medium);
-	
+
 	countFrameTracking++;
-	cout << "Tracking:  " << errorCode << endl;
+
 
 	for (int trackedObjectIndex = 0; trackedObjectIndex < TRACKED_OBJECTS;
 		trackedObjectIndex++)
-	{
-		int id;
+	{		
 		float bbX, bbY, bbWidth, bbHeight;
-		IFACE_TrackedObjectState trackedState;
-		float objectScore;
+		IFACE_TrackedObjectState trackedState;		
 
 		errorCode = IFACE_GetObjectState(objects[trackedObjectIndex],
-			objectHandler, &trackedState);
-		error->CheckError(errorCode, error->medium);
-		if (trackedState == IFACE_TRACKED_OBJECT_STATE_CLEAN)
-			continue;
-
-		errorCode = IFACE_GetObjectId(objects[trackedObjectIndex], objectHandler, &id);
-		error->CheckError(errorCode, error->medium);
-		errorCode = IFACE_GetObjectScore(objects[trackedObjectIndex], objectHandler, &objectScore);
+			objectHandler, &trackedState);		
 		error->CheckError(errorCode, error->medium);
 
-		// Get face from object and then the face score
-		errorCode = IFACE_GetFaceFromObject(objects[trackedObjectIndex], objectHandler,
-			faceTracking, IFACE_TRACKED_OBJECT_FACE_TYPE_LAST_DISCOVERY);
-		error->CheckError(errorCode, error->medium);
+		if (trackedState == IFACE_TRACKED_OBJECT_STATE_CLEAN) {
+			
+			
+			ClearCoordinatesImage(trackedObjectIndex);
+			cout << "STATE CLEAN: " << endl;
+		}
 
-		float rightEyeX, rightEyeY, leftEyeX, leftEyeY;
-		float faceScore;
-		errorCode = IFACE_GetFaceBasicInfo(faceTracking, faceHandlerTracking, &rightEyeX,
-			&rightEyeY, &leftEyeX, &leftEyeY, &faceScore);
-		error->CheckError(errorCode, error->medium);
+		/*if (trackedState != IFACE_TRACKED_OBJECT_STATE_CLEAN) {
+			errorCode = IFACE_GetObjectId(objects[trackedObjectIndex], objectHandler, &id);
+			error->CheckError(errorCode, error->medium);
+			cout << "STATE TRACKED ID: " << id << endl;
+		}	*/				
 
-		switch (trackedState)
+		if (trackedState == IFACE_TRACKED_OBJECT_STATE_TRACKED) {			
+			errorCode = IFACE_GetObjectBoundingBox(objects[trackedObjectIndex],
+				objectHandler, &bbX, &bbY, &bbWidth, &bbHeight);
+			error->CheckError(errorCode, error->medium);
+			BuildCoordinates(bbX, bbY, bbWidth, bbHeight, trackedObjectIndex);
+			cout << "STATE TRACKED: " << endl;
+		}
+
+		if (trackedState == IFACE_TRACKED_OBJECT_STATE_COVERED)
 		{
-		case IFACE_TRACKED_OBJECT_STATE_TRACKED:
 			errorCode = IFACE_GetObjectBoundingBox(objects[trackedObjectIndex],
 				objectHandler, &bbX, &bbY, &bbWidth, &bbHeight);
 			error->CheckError(errorCode, error->medium);
-			BuildCoordinates(bbX, bbY, bbWidth, bbHeight);
-			duration = clock() - timeStart;
-			durationMs = int(1000 * ((float)duration) / CLOCKS_PER_SEC);
-			printf("   face id %d is tracked. Its bounding box :(%f, %f), (%f, %f), Time score : %d, Object score : %f\n", id, bbX, bbY, bbWidth, bbHeight, durationMs, objectScore);
+			BuildCoordinates(bbX, bbY, bbWidth, bbHeight, trackedObjectIndex);
+		}
 
-			break;
-		case IFACE_TRACKED_OBJECT_STATE_COVERED:
-			errorCode = IFACE_GetObjectBoundingBox(objects[trackedObjectIndex],
-				objectHandler, &bbX, &bbY, &bbWidth, &bbHeight);
-			error->CheckError(errorCode, error->medium);
-			BuildCoordinates(bbX, bbY, bbWidth, bbHeight);
-			printf("   face id %d is covered by other face. Its bounding box :(%f, %f), (%f, %f), Face score : %f, Object score : %f\n", id, bbX, bbY, bbWidth, bbHeight, faceScore, objectScore);
-
-			break;
-		case IFACE_TRACKED_OBJECT_STATE_SUSPEND:
-			shootCoordinates.on_next(cropEmptyRect);
-		    printf("   face id %d is suspended, Face score : %f, Object score : %f\n", id, faceScore, objectScore);
-			break;
-		case IFACE_TRACKED_OBJECT_STATE_LOST:
-			// object is no longer tracked, but we save it for later
-			//allTrackedObjects.push_back(objects[trackedObjectIndex]);
-			shootCoordinates.on_next(cropEmptyRect);
+		if (trackedState == IFACE_TRACKED_OBJECT_STATE_SUSPEND)
+		{
+			ClearCoordinatesImage(trackedObjectIndex);
+			cout << "STATE SUSPEND INDEX: " << trackedObjectIndex << endl;
+		}
+	
+		if (trackedState == IFACE_TRACKED_OBJECT_STATE_LOST)
+		{
 			void *newObj;
 			errorCode = IFACE_CreateObject(&newObj);
 			error->CheckError(errorCode, error->medium);
 			objects[trackedObjectIndex] = newObj;
-			printf("   face id %d is lost, new object is created\n", id);
-			break;
-		case IFACE_TRACKED_OBJECT_STATE_CLEAN:
-			shootCoordinates.on_next(cropEmptyRect);
-			break;
+			ClearCoordinatesImage(trackedObjectIndex);
+			cout << "STATE LOST: " << endl;
 		}
+
 	}
 
-	
 	delete[] rawImage;
 
-	//for (int trackedObjectIndex = 0; trackedObjectIndex < TRACKED_OBJECTS;
-	//	trackedObjectIndex++)
-	//{
-	//	IFACE_TrackedObjectState trackedState;
-	//	errorCode = IFACE_GetObjectState(objects[trackedObjectIndex], 
-	//		objectHandler, &trackedState);
-	//	error->CheckError(errorCode, error->medium);
-	//	if (trackedState != IFACE_TRACKED_OBJECT_STATE_CLEAN)
-	//	{
-	//		allTrackedObjects.push_back(objects[trackedObjectIndex]);
-	//		// for later convenience, replace all of them with new objects
-	//		void *newObj;
-	//		errorCode = IFACE_CreateObject(&newObj);
-	//		error->CheckError(errorCode, error->medium);
-	//		objects[trackedObjectIndex] = newObj;
-	//	}
-	//}
 }
 
-void FaceModel::BuildCoordinates(float x, float y, float width, float height) {
-	float cropRect[4];
-	cropRect[0] = x;
-	cropRect[1] = y;
-	cropRect[2] = width;
-	cropRect[3] = height;
-	shootCoordinates.on_next(cropRect);
+//int FaceModel::SearchId(int idTracked) {
+//	int index = -1;
+//	if (coordinatesIdUser.empty())
+//	{
+//		coordinatesIdUser.push_back(idTracked);
+//		return 0;
+//	}
+//	else {
+//		for (unsigned i = 0; i < coordinatesIdUser.size(); i++) {
+//			if (coordinatesIdUser[i] == idTracked)
+//			{
+//				index = coordinatesIdUser.at(i);
+//			}
+//		}
+//			
+//	}
+//	if (index == -1)
+//	{
+//		if (coordinatesIdUser.size() == TRACKED_OBJECTS)
+//		{
+//			coordinatesIdUser.erase(coordinatesIdUser.begin() + idUserSuspend);
+//			
+//		}
+//		coordinatesIdUser.push_back(idTracked);
+//		index = coordinatesIdUser.size() - 1;
+//	}
+//
+//	return index;
+//}
+
+//void FaceModel::DeleteId(int idTracked) {
+//	int index;
+//	for (unsigned i = 0; i < coordinatesIdUser.size(); i++) {
+//		if (coordinatesIdUser[i] == idTracked)
+//		{
+//			index = coordinatesIdUser.at(i);
+//			
+//		}
+//	}
+//	coordinatesIdUser.erase(coordinatesIdUser.begin() + index);
+//	ClearCoordinatesImage(index);
+//}
+
+//void FaceModel::SuspendIndex(int idTracked) {
+//	int index = 0;
+//	for (unsigned i = 0; i < coordinatesIdUser.size(); i++) {
+//		if (coordinatesIdUser[i] == idTracked)
+//		{
+//			index = coordinatesIdUser.at(i);
+//
+//		}
+//	}
+//
+//	idUserSuspend = index;
+//}
+
+void FaceModel::ClearCoordinatesImage(int indexTracked) {
+	int index = indexTracked * NUMBER_COORDINATES_IMAGES;
+	imageCoordinatesFollowed[index] = 0;
+	imageCoordinatesFollowed[index + 1] = 0;
+	imageCoordinatesFollowed[index + 2] = 0;
+	imageCoordinatesFollowed[index + 3] = 0;
+	shootCoordinates.on_next(imageCoordinatesFollowed);
+}
+
+void FaceModel::BuildCoordinates(float x, float y, float width, float height, int indexTracked) {
+	int index = indexTracked * NUMBER_COORDINATES_IMAGES;
+	imageCoordinatesFollowed[index] = x;
+	imageCoordinatesFollowed[index + 1] = y;
+	imageCoordinatesFollowed[index + 2] = width;
+	imageCoordinatesFollowed[index + 3] = height;
+	shootCoordinates.on_next(imageCoordinatesFollowed);
 
 }
 
@@ -664,11 +732,21 @@ int FaceModel::GetOneModel(unsigned char* rawImage,
 	errorCode = IFACE_CreateFaceHandler(&faceHandler);
 	error->CheckError(errorCode, error->medium);
 
-	errorCode = IFACE_SetParam(faceHandler, 
-		IFACE_PARAMETER_FACEDET_SPEED_ACCURACY_MODE, 
-		IFACE_FACEDET_SPEED_ACCURACY_MODE_BALANCED);
-	error->CheckError(errorCode, error->medium);
-
+	if (configuration->GetModeDetect() == 1)
+	{
+		errorCode = IFACE_SetParam(faceHandler,
+			IFACE_PARAMETER_FACEDET_SPEED_ACCURACY_MODE,
+			IFACE_FACEDET_SPEED_ACCURACY_MODE_BALANCED);
+		error->CheckError(errorCode, error->medium);
+	}
+	if (configuration->GetModeDetect() == 2)
+	{
+		errorCode = IFACE_SetParam(faceHandler,
+			IFACE_PARAMETER_FACEDET_SPEED_ACCURACY_MODE,
+			IFACE_FACEDET_SPEED_ACCURACY_MODE_FAST);
+		error->CheckError(errorCode, error->medium);
+	}	
+	
 	for (int i = 0; i < maxFaces; i++) { 
 		errorCode = IFACE_CreateFace(&(faceTemp[i]));
 		error->CheckError(errorCode, error->medium);

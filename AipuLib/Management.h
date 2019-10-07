@@ -35,6 +35,7 @@ public:
 		configurationFile->ParseJSONToObject();
 		//SetNameFileConfigurationVideo(configurationFile->GetNameFileConfigurationVideo());
 		SetNameFileConfigurationFace(configurationFile->GetNameFileConfigurationFaceModel());
+		SetNameFileConfigurationIdentify(configurationFile->GetNameFileConfigurationIdentify());
 		video->SetNameDirectory(configurationFile->GetNameDirectoryTempWork());
 		faceModel->SetNameDirectory(configurationFile->GetNameDirectoryTempWork());
 		train->CreateTrainingDirectory(configurationFile->GetNameDirectoryTraining());
@@ -190,6 +191,8 @@ public:
 
 	void ReloadFaceModel() {
 		faceModel->configuration->ParseJSONToObject();		
+		identify->configuration->ParseJSONToObject();
+		identify->LoadConnection();
 	}
 
 	Rx::subject<Either*> errorSubject;
@@ -241,7 +244,13 @@ private:
 	void SetNameFileConfigurationFace(string name) {
 		faceModel->configuration->SetNameFileConfiguration(name);
 		faceModel->configuration->ParseJSONToObject();
+		
+	}
 
+	void SetNameFileConfigurationIdentify(string name) {
+		identify->configuration->SetNameFileConfiguration(name);
+		identify->configuration->ParseJSONToObject();
+		identify->LoadConnection();
 	}
 
 	void SetNameFileConfigurationDatabase(string name) {

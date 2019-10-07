@@ -12,6 +12,7 @@ public:
 	~ConfigurationDatabase();
 	void ParseJSONToObject();
 	void ParseMapToJSON();
+	
 	void SetNameDatabase(string name) {
 		nameDatabase = name;
 	}

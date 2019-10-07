@@ -147,7 +147,7 @@
       </SDLCheck>
       <PreprocessorDefinitions>NDEBUG;AIPULIB_EXPORTS;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\JSONCPP\include;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include;C:\Users\david\Downloads\cuda-samples-master\Common;C:\Eigen;C:\opencv\build\include;C:\boost_1_70_0;C:\mongo-cxx-driver\install\include\mongocxx\v_noabi;C:\mongo-cxx-driver\install\include\bsoncxx\v_noabi;C:\mongo-c-driver\include\libbson-1.0;C:\mongo-c-driver\include\libmongoc-1.0;C:\Program Files\Innovatrics\IDKit SDK\include;C:\Program Files\Innovatrics\IFace SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\install\Innovatrics SDKs\1.0.0.2\include;C:\Program Files %28x86%29\JSONCPP\include;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include;C:\Users\david\Downloads\cuda-samples-master\Common;C:\Eigen;C:\opencv\build\include;C:\boost_1_70_0;C:\mongo-cxx-driver\install\include\mongocxx\v_noabi;C:\mongo-cxx-driver\install\include\bsoncxx\v_noabi;C:\mongo-c-driver\include\libbson-1.0;C:\mongo-c-driver\include\libmongoc-1.0;C:\Program Files\Innovatrics\IDKit SDK\include;C:\Program Files\Innovatrics\IFace SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeaderFile />
@@ -166,8 +166,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
-      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\JSONCPP\lib;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\lib\x64;C:\opencv\build\x64\vc15\lib;C:\mongo-cxx-driver\install\lib;C:\Program Files\Innovatrics\IDKit SDK\lib;C:\Program Files\Innovatrics\IFace SDK\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>iface.lib;idkit.lib;bsoncxx.lib;mongocxx.lib;opencv_world400.lib;cudart_static.lib;jsoncpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\install\Innovatrics SDKs\1.0.0.2\lib;C:\Program Files %28x86%29\JSONCPP\lib;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\lib\x64;C:\opencv\build\x64\vc15\lib;C:\mongo-cxx-driver\install\lib;C:\Program Files\Innovatrics\IDKit SDK\lib;C:\Program Files\Innovatrics\IFace SDK\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>iface.lib;idkit.lib;bsoncxx.lib;mongocxx.lib;opencv_world400.lib;cudart_static.lib;jsoncpp.lib;AFaceAPI.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -181,6 +181,7 @@
     <ClInclude Include="Configuration.h" />
     <ClInclude Include="ConfigurationDatabase.h" />
     <ClInclude Include="ConfigurationFile.h" />
+    <ClInclude Include="ConfigurationIdentify.h" />
     <ClInclude Include="ConfigurationIFace.h" />
     <ClInclude Include="ConfigurationVideo.h" />
     <ClInclude Include="Database.h" />
@@ -211,6 +212,7 @@
     <ClCompile Include="Base64.cpp" />
     <ClCompile Include="ConfigurationDatabase.cpp" />
     <ClCompile Include="ConfigurationFile.cpp" />
+    <ClCompile Include="ConfigurationIdentify.cpp" />
     <ClCompile Include="ConfigurationIFace.cpp" />
     <ClCompile Include="ConfigurationVideo.cpp" />
     <ClCompile Include="Database.cpp" />

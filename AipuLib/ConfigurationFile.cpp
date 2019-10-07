@@ -28,6 +28,7 @@ void ConfigurationFile::ParseMapToJSON() {
 	params.insert(std::pair<std::string, std::string>(DIRECTORYWORK, nameDirectoryTempWork));
 	params.insert(std::pair<std::string, std::string>(DIRECTORYTRAIN, nameDirectoryTraining));
 	params.insert(std::pair<std::string, std::string>(FILEDATABASE, nameFileConfigurationDatabase));
+	params.insert(std::pair<std::string, std::string>(FILEIDENTIFY, nameFileConfigurationIdentify));
 	std::map<std::string, std::string>::const_iterator it = params.begin(),
 		end = params.end();
 	for (; it != end; ++it) {
@@ -53,6 +54,11 @@ void ConfigurationFile::SetValueJSONToConfiguration() {
 		else if (it.key().asString() == FILEFACE) {
 			if (!it->asString().empty()) {
 				nameFileConfigurationFaceModel = it->asString();
+			}
+		}
+		else if (it.key().asString() == FILEIDENTIFY) {
+			if (!it->asString().empty()) {
+				nameFileConfigurationIdentify = it->asString();
 			}
 		}
 		else if (it.key().asString() == DIRECTORYWORK) {
