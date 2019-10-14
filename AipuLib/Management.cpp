@@ -42,7 +42,8 @@ void Management::ObserverIdentifyFace() {
 		}
 		else {
 			database->FindUserByIdFace(user->GetUserIdIFace(), 
-				user->GetPathImageTemp(), user->GetClient());
+				user->GetCropImageData(), user->GetMoldCropHeight(), 
+				user->GetMoldCropWidth(), user->GetClient());
 		}
 		
 	});
@@ -68,6 +69,10 @@ void Management::ObserverTemplateImage()
 	});
 
 	auto subscriptionTemplate = templateObservable.subscribe([this](Molded* modelImage) {
+		/*if (!identify->GetFlagEnroll())
+		{
+			identify->EnrollUser(modelImage);
+		}*/
 		identify->EnrollUser(modelImage);
 	});
 	
@@ -264,9 +269,15 @@ void Management::RecognitionFace(unsigned char* image,
 	if (!flagNextFrame) {
 		flagNextFrame = true;
 		Mat matImage = ByteToMat(image, rows, cols);
+		if (!matImage.empty())
+		{
+			std::thread squ(&Management::ProcessImage, this, matImage, client);
+			squ.detach();
+		}
+		else {
+			flagNextFrame = false;
+		}
 		
-		std::thread squ(&Management::ProcessImage, this, matImage, client);
-		squ.detach();
 
 	}
 }
@@ -278,8 +289,15 @@ void Management::RecognitionFastFace(unsigned char* image,
 	if (!flagFastNextFrame) {
 		flagFastNextFrame = true;
 		Mat matImage = ByteToMat(image, rows, cols);
-		std::thread sqf(&Management::ProcessFastImage, this, matImage);
-		sqf.detach();
+		if (!matImage.empty())
+		{
+			std::thread sqf(&Management::ProcessFastImage, this, matImage);
+			sqf.detach();
+		}
+		else {
+			flagFastNextFrame = false;
+		}
+		
 	}
 		
 }
@@ -293,14 +311,14 @@ void Management::ProcessFastImage(Mat image) {
 void Management::InitTracking(unsigned char* image,
 	int rows, int cols) {
 	Mat matImage = ByteToMat(image, rows, cols);
-	ProcessInitTracking(matImage, rows, cols);
+	ProcessInitTracking(matImage);
 }
 
 
 
-void Management::ProcessInitTracking(Mat image, int rows, int cols) {
+void Management::ProcessInitTracking(Mat image) {
 	vector<uchar> buffer = video->WriteImagePngOnBuffer(image);
-	faceModel->InitTracking(buffer, cols, rows);
+	faceModel->InitTracking(buffer);
 	buffer.clear();
 }
 
@@ -310,25 +328,36 @@ void Management::Tracking(unsigned char* image,
 		
 		flagFastNextFrame = true;
 		Mat matImage = ByteToMat(image, rows, cols);
-		std::thread sqt(&Management::ProcessTracking, this, 
-			matImage, rows, cols);
-		sqt.detach();
+		if (!matImage.empty())
+		{
+			std::thread sqt(&Management::ProcessTracking, this,
+				matImage);
+			sqt.detach();
+		}
+		else {
+			flagFastNextFrame = false;
+		}
+		
 	}
 	
 }
 
-void Management::ProcessTracking(Mat image, int rows, int cols) {
+void Management::ProcessTracking(Mat image) {
 	vector<uchar> buffer = video->WriteImageOnBuffer(image);
-	faceModel->Tracking(buffer, cols, rows);
+	faceModel->Tracking(buffer);
 	buffer.clear();
 	flagFastNextFrame = false;
 }
 
 Mat Management::ByteToMat(unsigned char* image, int rows, int cols) {
-	Mat matImage = Mat(rows, cols, CV_8UC3);
-	matImage.data = image;
+	Mat matImageBuffer = Mat(rows, cols, CV_8UC3);
+	matImageBuffer.data = image;
 	Mat reverseImage;
-	bitwise_not(matImage, reverseImage);
+	if (!matImageBuffer.empty())
+	{
+		bitwise_not(matImageBuffer, reverseImage);
+	}
+	
 	//imwrite("666.png", reverseImage);
 	return reverseImage;
 }

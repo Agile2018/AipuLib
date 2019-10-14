@@ -29,18 +29,19 @@ void Database::Configure() {
 
 void Database::InsertNewUser(User* user) {
 	std::thread(&Database::AddImageUser, this, 
-		user->GetPathImageTemp(), user->GetUserIdIFace()).join();
+		user->GetCropImageData(), user->GetMoldCropHeight(), user->GetMoldCropWidth(),
+		user->GetUserIdIFace()).join();
 	std::thread(&Database::AddUser, this, user).join();
 	BuildNewUser(user);
 	
 }
 
-void Database::AddRecordsUser(User* user) {
-	AddImageUser(user->GetPathImageTemp(),
-		user->GetUserIdIFace());		
-	AddUser(user);
-	BuildNewUser(user);
-}
+//void Database::AddRecordsUser(User* user) {
+//	AddImageUser(user->GetCropImageData(), user->GetMoldCropHeight(), 
+//		user->GetMoldCropWidth(), user->GetUserIdIFace());		
+//	AddUser(user);
+//	BuildNewUser(user);
+//}
 
 void Database::AddUser(User* user) {
 	
@@ -70,12 +71,12 @@ void Database::AddUser(User* user) {
 
 }
 
-void Database::AddImageUser(string pathImage, int idUser) {
+void Database::AddImageUser(vector<unsigned char> image, int rows, int cols, int idUser) {
 	auto clientConnection = MongoAccess::instance().GetConnection();
 	mongocxx::database database = (*clientConnection)[configuration->GetNameDatabase().c_str()];
 	mongocxx::collection collection = database[COLLECTION_IMAGE.c_str()];
 	
-	string imageBase64 = FileImageToStringBase64(pathImage);	
+	string imageBase64 = FileImageToStringBase64(image, rows, cols);	
 	bsoncxx::document::value builder = make_document(
 		kvp("id_face", idUser),
 		kvp("data_64", imageBase64.c_str()),
@@ -107,10 +108,13 @@ void Database::BuildNewUser(User* user) {
 	BuildJSONUser(values);
 }
 
-string Database::FileImageToStringBase64(string path) {
+string Database::FileImageToStringBase64(vector<unsigned char> image, int rows, int cols) {
 	string encodedPng;
 	vector<uchar> bufferImage;
-	Mat img = imread(path, IMREAD_COLOR);
+	//Mat img = imread(path, IMREAD_COLOR);
+	Mat img = Mat(rows, cols, CV_8UC3);
+	img.data = &image[0];
+
 	int params[3] = { 0 };
 	params[0] = IMWRITE_JPEG_QUALITY;
 	params[1] = 100;
@@ -123,10 +127,11 @@ string Database::FileImageToStringBase64(string path) {
 
 		encodedPng = base64->base64_encode(buffToBase64, 
 			(unsigned int)bufferImage.size());
-		std::thread(&Database::DeleteFileTempCropImage, this, path).detach();
+		//std::thread(&Database::DeleteFileTempCropImage, this, path).detach();
 	}
 	return encodedPng;
 }
+
 void Database::DeleteFileTempCropImage(string filePath) {
 	file->DeleteFile(filePath);
 }
@@ -159,9 +164,10 @@ void Database::ObserverError() {
 
 }
 
-void Database::FindUserByIdFace(int idFaceUser, string pathFileCropImage, int client) {
+void Database::FindUserByIdFace(int idFaceUser, vector<unsigned char> image,
+	int rows, int cols, int client) {
 	std::thread(&Database::QueryUserByFace, this, idFaceUser, client).detach();
-	std::thread(&Database::UpdateImageUser, this, idFaceUser, pathFileCropImage).detach();
+	std::thread(&Database::UpdateImageUser, this, idFaceUser, image, rows, cols).detach();
 }
 
 void Database::QueryUserByFace(int idFaceUser, int client) {
@@ -190,11 +196,11 @@ void Database::QueryUserByFace(int idFaceUser, int client) {
 
 }
 
-void Database::UpdateImageUser(int idFaceUser, string pathFileCropImage) {
+void Database::UpdateImageUser(int idFaceUser, vector<unsigned char> image, int rows, int cols) {
 	auto clientConnection = MongoAccess::instance().GetConnection();
 	mongocxx::database database = (*clientConnection)[configuration->GetNameDatabase().c_str()];
 	mongocxx::collection collection = database[COLLECTION_IMAGE.c_str()];
-	string imageBase64 = FileImageToStringBase64(pathFileCropImage);
+	string imageBase64 = FileImageToStringBase64(image, rows, cols);
 	try
 	{
 

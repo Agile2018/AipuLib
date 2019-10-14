@@ -2,6 +2,7 @@
 #define Molded_h
 
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -14,8 +15,28 @@ public:
 		moldImage = mold;
 	}
 
+	void SetCropImageData(unsigned char* moldCrop) {
+		cropImageData.assign(moldCrop, moldCrop + cropLength);		
+	}
+
+	vector<unsigned char> GetCropImageData() {
+		return cropImageData;
+	}
+
 	void SetMoldSize(int size) {
 		moldSize = size;
+	}
+
+	void SetMoldCropWidth(int size) {
+		cropWidth = size;
+	}
+
+	void SetMoldCropHeight(int size) {
+		cropHeight = size;
+	}
+
+	void SetMoldCropLength(int size) {
+		cropLength = size;
 	}
 
 	char* GetMoldImage() {
@@ -24,6 +45,18 @@ public:
 
 	int GetMoldSize() {
 		return moldSize;
+	}
+
+	int GetMoldCropWidth() {
+		return cropWidth;
+	}
+
+	int GetMoldCropHeight() {
+		return cropHeight;
+	}
+
+	int GetMoldCropLength() {
+		return cropLength;
 	}
 
 	void SetPathImage(string path) {
@@ -41,11 +74,15 @@ public:
 	void SetIdClient(int id) {
 		idClient = id;
 	}
+	
+
 private:
 	char* moldImage;
-	int moldSize;
+	vector<unsigned char> cropImageData;
+	int moldSize, cropWidth, cropHeight, cropLength;
 	string pathImage;
 	int idClient;
+	
 };
 
 

@@ -6,7 +6,7 @@
 #endif
 
 #include <string>
-//#include <vector>
+
 using namespace std;
 
 
@@ -37,6 +37,12 @@ public:
 	void ResfreshBetweenFrame(int refresh);
 	void SetConfigurationDatabase();
 	void TerminateTracking();
+	void ResetLowScore();
+	int GetCountLowScore();
+	void ResetCountRepeatUser();
+	int GetCountRepeatUser();
+	void ResetCountNotDetect();
+	int GetCountNotDetect();
 private:	
 	
 	void ObserverEvent();

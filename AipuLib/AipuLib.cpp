@@ -51,7 +51,11 @@ void AipuLib::ObserverEvent() {
 	});
 
 	auto subscriptionCoordinates = CoordinatesObservable.subscribe([this](float coordinates[]) {
-		cropRect[0] = coordinates[0];
+		for (int i = 0; i < 20; i++)
+		{
+			cropRect[i] = coordinates[i];
+		}
+	/*	cropRect[0] = coordinates[0];
 		cropRect[1] = coordinates[1];
 		cropRect[2] = coordinates[2];
 		cropRect[3] = coordinates[3];
@@ -71,7 +75,7 @@ void AipuLib::ObserverEvent() {
 		cropRect[17] = coordinates[17];
 		cropRect[18] = coordinates[18];
 		cropRect[19] = coordinates[19];
-		
+		*/
 		/*std::copy(std::begin(cropRect), std::end(cropRect), 
 			std::ostream_iterator<float>(std::cout, " "));*/
 	});
@@ -177,4 +181,28 @@ void AipuLib::ResetIdUser() {
 
 void AipuLib::SetConfigurationDatabase() {
 	management->SetConfigurationDatabase();
+}
+
+void AipuLib::ResetLowScore() {
+	management->ResetLowScore();
+}
+
+int AipuLib::GetCountLowScore() {
+	return management->GetCountLowScore();
+}
+
+void AipuLib::ResetCountRepeatUser() {
+	management->ResetCountRepeatUser();
+}
+
+int AipuLib::GetCountRepeatUser() {
+	return management->GetCountRepeatUser();
+}
+
+void AipuLib::ResetCountNotDetect() {
+	management->ResetCountNotDetect();
+}
+
+int AipuLib::GetCountNotDetect() {
+	return management->GetCountNotDetect();
 }

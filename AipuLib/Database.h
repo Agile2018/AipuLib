@@ -32,9 +32,11 @@ public:
 
 	void Configure();
 	void InsertNewUser(User* user);	
-	void FindUserByIdFace(int idFaceUser, string pathFileCropImage, int client);
+	void FindUserByIdFace(int idFaceUser, vector<unsigned char> image,
+		int rows, int cols, int client);
 	void ResetIdUser() {
-		lastUserId = 0;
+		lastUserId = -1;
+		lastClient = -1;
 	}
 	ConfigurationDatabase* configuration = new ConfigurationDatabase();
 	Rx::subject<Either*> errorSubject;
@@ -66,16 +68,17 @@ private:
 	File* file = new File();
 	Base64* base64 = new Base64();
 	void AddUser(User* user);
-	void AddRecordsUser(User* user);
-	void AddImageUser(string pathImage, int idUser);
+	//void AddRecordsUser(User* user);
+	void AddImageUser(vector<unsigned char> image, int rows, int cols, int idUser);
 	void ObserverError();
 	void QueryUserByFace(int idFaceUser, int client);
 	void BuildJSONUser(vector<std::string> values);
 	void BuildNewUser(User* user);
 	string QueryImageOfUser(int idFaceUser);
-	string FileImageToStringBase64(string path);
+	string FileImageToStringBase64(vector<unsigned char> image, int rows, int cols);
 	void DeleteFileTempCropImage(string filePath);
-	void UpdateImageUser(int idFaceUser, string pathFileCropImage);
+	void UpdateImageUser(int idFaceUser, vector<unsigned char> image, int rows, int cols);
+	
 };
 
 

@@ -15,6 +15,7 @@ void Identify::LoadConnection() {
 	int errorCode;
 	std::string str = "iengine.db";
 	const char *cstr = str.c_str();
+
 	SetParamsIdentify();
 	errorCode = connectToDatabase(cstr);
 	cout << "connectToDatabase returns " << errorCode << endl;
@@ -52,12 +53,14 @@ void Identify::SetParamsIdentify() {
 }
 
 void Identify::EnrollUser(Molded* modelImage) {
+	flagEnroll = true;
 	int errorCode, userID, score;
 	//IENGINE_USER user = IEngine_InitUser();
 	User* userForDatabase = new User();
 	const unsigned char* templateData = reinterpret_cast<const unsigned char*>(modelImage->GetMoldImage());	
 
 	errorCode = identify(templateData, modelImage->GetMoldSize(), &userID, &score);
+	error->CheckError(errorCode, error->medium);
 	if (userID == 0 && isRegister)
 	{
 
@@ -67,13 +70,23 @@ void Identify::EnrollUser(Molded* modelImage) {
 			userForDatabase->SetIsNew(true);
 		}
 	}
+	
+
 	if (errorCode == IENGINE_E_NOERROR && userID != 0) {
-		userForDatabase->SetUserIdIFace(userID);
-		userForDatabase->SetPathImageTemp(modelImage->GetPathImage());
+		if (!userForDatabase->GetIsNew())
+		{
+			countRepeatUser++;
+		}
+		userForDatabase->SetUserIdIFace(userID);		
 		userForDatabase->SetClient(modelImage->GetIdClient());
+		userForDatabase->SetCropImageData(modelImage->GetCropImageData());
+		userForDatabase->SetMoldCropHeight(modelImage->GetMoldCropHeight());
+		userForDatabase->SetMoldCropLength(modelImage->GetMoldCropLength());
+		userForDatabase->SetMoldCropWidth(modelImage->GetMoldCropWidth());
+
 		shootUser.on_next(userForDatabase);
 	}
-
+	flagEnroll = false;
 
 	/*errorCode = IEngine_AddFaceTemplate(user, templateData, modelImage->GetMoldSize());
 	if (errorCode == IENGINE_E_NOERROR) {

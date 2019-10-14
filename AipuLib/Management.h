@@ -150,6 +150,31 @@ public:
 		return workMode;
 	}
 
+	void ResetLowScore() {
+		faceModel->ResetLowScore();
+	}
+
+	int GetCountLowScore() {
+		return faceModel->GetCountLowScore();
+	}
+
+	void ResetCountRepeatUser() {
+		identify->ResetCountRepeatUser();
+	}
+
+	int GetCountRepeatUser() {
+		return identify->GetCountRepeatUser();
+	}
+
+	void ResetCountNotDetect() {
+		faceModel->ResetCountNotDetect();
+	}
+
+	int GetCountNotDetect() {
+		return faceModel->GetCountNotDetect();
+	}
+
+
 	bool GetStateProccessRecognition() {
 		return flagNextFrame;
 	}
@@ -175,7 +200,17 @@ public:
 	}
 
 	void TerminateTracking() {
-		faceModel->TerminateTracking();
+		bool flagTerminate = false;
+
+		while (!flagTerminate)
+		{
+			if (!flagFastNextFrame)
+			{
+				faceModel->TerminateTracking();
+				flagTerminate = true;
+			}
+		}
+		
 	}
 
 	void Destroy() {
@@ -260,8 +295,8 @@ private:
 
 	void ProcessImage(Mat image, int client);
 	void ProcessFastImage(Mat image);
-	void ProcessInitTracking(Mat image, int rows, int cols);
-	void ProcessTracking(Mat image, int rows, int cols);
+	void ProcessInitTracking(Mat image);
+	void ProcessTracking(Mat image);
 };
 
 #endif // !Management_h

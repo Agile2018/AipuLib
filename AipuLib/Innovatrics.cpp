@@ -65,18 +65,35 @@ bool Innovatrics::InitParamsGraphicProcessor() {
 
 void Innovatrics::SetParamsLibrary() {
 	int errorCode;
-	if (!isGraphicProcessor || !InitParamsGraphicProcessor())
-	{
-		errorCode = IFACE_SetParam(IFACE_GLOBAL_PARAMETERS,
-			IFACE_PARAMETER_GLOBAL_THREAD_NUM, IFACE_GLOBAL_THREAD_NUM_DEFAULT);
-		if (errorCode != IFACE_OK) {
-			error->CheckError(errorCode, error->medium);
+	if (isGraphicProcessor) {
+		if (InitParamsGraphicProcessor())
+		{
+			cout << "CUDA SET INNOVATRICS OK." << endl;
 		}
-		cout << "CUDA SI EXISTE.." << endl;
-	}
-	else {
+		else {
+			cout << "CUDA SET INNOVATRICS ERROR." << endl;
+		}
+	}else{
 		cout << "CUDA NO EXISTE.." << endl;
 	}
+	errorCode = IFACE_SetParam(IFACE_GLOBAL_PARAMETERS,
+		IFACE_PARAMETER_GLOBAL_THREAD_NUM, IFACE_GLOBAL_THREAD_NUM_DEFAULT); 
+	if (errorCode != IFACE_OK) {
+		error->CheckError(errorCode, error->medium);
+	}
+
+	//if (!isGraphicProcessor || !InitParamsGraphicProcessor())
+	//{
+	//	errorCode = IFACE_SetParam(IFACE_GLOBAL_PARAMETERS,
+	//		IFACE_PARAMETER_GLOBAL_THREAD_NUM, IFACE_GLOBAL_THREAD_NUM_DEFAULT); //IFACE_GLOBAL_THREAD_NUM_DEFAULT
+	//	if (errorCode != IFACE_OK) {
+	//		error->CheckError(errorCode, error->medium);
+	//	}
+	//	cout << "CUDA SI EXISTE.." << endl;
+	//}
+	//else {
+	//	cout << "CUDA NO EXISTE.." << endl;
+	//}
 	
 }
 

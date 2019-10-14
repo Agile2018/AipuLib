@@ -2,6 +2,7 @@
 #define User_h
 
 #include <iostream>
+#include <vector>
 
 using namespace std;
 class User
@@ -75,15 +76,51 @@ public:
 		return identificationUser;
 	}
 
+	int GetMoldCropWidth() {
+		return cropWidth;
+	}
+
+	int GetMoldCropHeight() {
+		return cropHeight;
+	}
+
+	int GetMoldCropLength() {
+		return cropLength;
+	}
+
+	void SetCropImageData(vector<unsigned char> moldCrop) {
+		copy(moldCrop.begin(), moldCrop.end(), back_inserter(cropImageData));
+		
+	}
+
+	vector<unsigned char> GetCropImageData() {
+		return cropImageData;
+	}
+
+	void SetMoldCropWidth(int size) {
+		cropWidth = size;
+	}
+
+	void SetMoldCropHeight(int size) {
+		cropHeight = size;
+	}
+
+	void SetMoldCropLength(int size) {
+		cropLength = size;
+	}
+
 private:
 	string idDb;
-	int userIdIFace;	
+	int userIdIFace, cropWidth, cropHeight, cropLength;;
 	string nameUser;
 	string lastNameUser;
 	string identificationUser;
 	string pathImageTemp;
 	bool isNew = false;
 	int client;
+
+	vector<unsigned char> cropImageData;
+	
 };
 
 
